@@ -8,6 +8,7 @@ You will then be presented with a never-ending sequence of problems.
 
 # Plans
 * Statistics
+* Text to speech capabilities (!!)
 * Bigger number capabilities
 * Bug fixes
 * using multiple problem types in one training session
