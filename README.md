@@ -8,6 +8,7 @@ You will then be presented with a never-ending sequence of problems.
 
 # Plans
 * Statistics
+* Custom averages (like average of 10 problems, of 5, and arithmetic means)
 * Text to speech capabilities (!!)
 * Bigger number capabilities
 * Bug fixes
@@ -16,4 +17,3 @@ You will then be presented with a never-ending sequence of problems.
 
 # Limitations
 * The program currently only accepts single numbers for X and Y in the digit code.
-* Some problems (like not accepting a text answer) aren't handled (yet)
