@@ -7,6 +7,7 @@ When you start the program, you have to enter a digit code. For more info about 
 You will then be presented with a never-ending sequence of problems.
 
 # Plans
+* Timing
 * Statistics
 * Custom averages (like average of 10 problems, of 5, and arithmetic means)
 * Text to speech capabilities (!!)
@@ -17,3 +18,4 @@ You will then be presented with a never-ending sequence of problems.
 
 # Limitations
 * The program currently only accepts single numbers for X and Y in the digit code.
+* 
