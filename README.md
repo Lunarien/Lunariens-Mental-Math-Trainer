@@ -18,4 +18,4 @@ You will then be presented with a never-ending sequence of problems.
 
 # Limitations
 * The program currently only accepts single numbers for X and Y in the digit code.
-* 
+* When entering a wrong answer, you don't get to try again. I will soon try to implement trying again.
