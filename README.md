@@ -6,11 +6,13 @@ When you start the program, you have to enter a digit code. For more info about 
 
 You will then be presented with a never-ending sequence of problems.
 
+# Capabilities
+* Text to speech capabilities (!!)
+
 # Plans
 * Timing
 * Statistics
 * Custom averages (like average of 10 problems, of 5, and arithmetic means)
-* Text to speech capabilities (!!)
 * Bigger number capabilities
 * Bug fixes
 * using multiple problem types in one training session
