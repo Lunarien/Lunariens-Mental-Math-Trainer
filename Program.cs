@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Globalization;
-
+using System.Speech.Synthesis;
 
 namespace Lunarien_s_Mental_Math_Trainer
 {
     internal class Program
     {
+        public static int mode = 0;
         public class DigitCode
         {
             //variables that store digit amounts of X and Y, the operation and optionally the decimal digits
@@ -16,7 +17,7 @@ namespace Lunarien_s_Mental_Math_Trainer
             public char Operation;
             public int Decimals;
             public void Get()
-            {                
+            {
                 char[] numbers = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
                 char[] operations = { '+', '-', '*', '/', '^', 'R' };
 
@@ -35,7 +36,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                             return;
                         }
                         else
-                            Console.WriteLine("Invalid digit code.");
+                            Console.WriteLine("Invalid digit code format.");
                     } //if decimals are specified, check if fifth symbol is a valid number and whether there is a dot symbol before it.
                     else if (usrDigitCode.Length == 5)
                     {
@@ -48,7 +49,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                             return;
                         }
                         else
-                            Console.WriteLine("Invalid digit code.");
+                            Console.WriteLine("Invalid digit code format.");
                     }
                     else if (usrDigitCode == "help")
                     {
@@ -66,11 +67,33 @@ namespace Lunarien_s_Mental_Math_Trainer
                     }
                     else
                     {
-                        Console.WriteLine("Invalid digit code format");
+                        Console.WriteLine("Invalid digit code format. (Did you forget a decimal point?)");
                     }
                 }
             }
             
+        }
+        public static int GetMode()
+        {
+            Console.WriteLine("Choose a mode:");
+            Console.WriteLine("0 - Text mode");
+            Console.WriteLine("1 - Speech mode");
+            while (true)
+            {
+                string usrMode = Console.ReadLine();
+                if (usrMode == "0")
+                {
+                    return 0;
+                }
+                else if (usrMode == "1")
+                {
+                    return 1;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid mode.");
+                }
+            }
         }
         public static ulong RandomUlong(ulong bottom, ulong top)
         {
@@ -82,11 +105,75 @@ namespace Lunarien_s_Mental_Math_Trainer
             ulong result = (BitConverter.ToUInt64(buf, 0)%rangeSize)+bottom;
             return result;
         }
+        public static string AddCommas(string number)
+        {
+            for (int i = number.Length-3; i >= 0; i -= 3)
+            {
+                number = number.Insert(i, ",");
+            }
+            return number;
+        }
+        public static void OutputProblem(string problem)
+        {
+            
+            if (mode == 0) //text mode
+            {
+                Console.WriteLine(problem);
+            }
+            if (mode == 1) //speech mode
+            {
+                SpeechSynthesizer synth = new();
+                char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
+                
+                problem = Regex.Replace(problem, @"[\n*^/+\-√]", string.Empty);
+
+                string[] numbers = problem.Split(' ');
+
+                for (int i = 0; i < numbers.Length; i++)
+                {
+                    numbers[i] = AddCommas(numbers[i]);
+                }
+                
+                switch (op)
+                {
+                    case '+':
+                        problem = string.Join(" plus ", numbers);
+                        synth.Speak(problem);
+                        break;
+                    case '-':
+                        problem = string.Join(" minus ", numbers);
+                        synth.Speak(problem);
+                        break;
+                    case '*':
+                        problem = string.Join(" times ", numbers);
+                        synth.Speak(problem);
+                        break;
+                    case '/':
+                        problem = string.Join(" divided by ", numbers);
+                        synth.Speak(problem);
+                        break;
+                    case '^':
+                        problem = string.Join(" to the power of ", numbers);
+                        synth.Speak(problem);
+                        break;
+                    case '√':
+                        problem = string.Join(" root of", numbers);
+                        synth.Speak(problem);
+                        break;
+                    default:
+                        Console.WriteLine("An error occured during processing of the problem for speech output.");
+                        break;
+                }
+                
+            }
+        }
         static void Main(string[] args)
         {
             IFormatProvider ifp;
             ifp = new CultureInfo("en-US");
             Console.ForegroundColor = ConsoleColor.White;
+
+            mode = GetMode();
             // 1) get digit code
             DigitCode usrDC = new();
             usrDC.Get();
@@ -102,7 +189,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                 ulong yRangeTop = Convert.ToUInt64(Math.Round(Math.Pow(10, usrDC.DigitsY), 0));
                 ulong y = RandomUlong(yRangeBottom, yRangeTop);
 
-                // 3) make a problem with the random numbers and the operation
+                // 3) make a problem string with the random numbers and the operation
                 string problem;
                 if (usrDC.Operation == '^')
                 {
@@ -120,12 +207,12 @@ namespace Lunarien_s_Mental_Math_Trainer
                     }
                     
                 }
-                else 
+                else
                 {
-                    problem = x.ToString() + usrDC.Operation + y.ToString();
+                    problem = x.ToString() + usrDC.Operation + "\n" + y.ToString();
                 }
-                // 3.5) precompute the correct solution
-                ulong? intResult = null;
+    		    // 3.5) precompute the correct solution
+    		    ulong? intResult = null; //the null value indicates that the problem does not have a solution of this type.
                 decimal? decResult = null;
                 switch (usrDC.Operation)
                 {
@@ -150,60 +237,94 @@ namespace Lunarien_s_Mental_Math_Trainer
                     case 'R':
                         decResult = Math.Round((decimal)Math.Pow(Convert.ToDouble(y), 1 / Convert.ToDouble(usrDC.DigitsX)), usrDC.Decimals, MidpointRounding.ToZero);
                         break;
-                    default:
+                    default: //should be impossible to reach here.
                         intResult = 0;
                         decResult = 0.0m;
                         break;
                 }
 
                 // 4) ask the user to solve the problem. verify answer. give evaluation (correct/wrong).
-                Console.WriteLine(problem);
-                Console.Write("Your result: ");
-                
-                string usrResult = Console.ReadLine();
-                if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
+                /*
+                loop:
+                -precompute answer
+                -display problem
+                -get usrResult
+                -if usrResult == "", then:
+                    display the same problem again, any amount of times (as long as the input is "", repeat the problem)
+                -give evaluation
+                */
+                while (true) //a never-nester's worst nightmare.
                 {
-                    if (ulong.TryParse(usrResult, out ulong _))
+                    OutputProblem(problem);
+                    Console.Write("Your result: ");
+                    
+                    string usrResult = Console.ReadLine();
+                    if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
                     {
-                        if (ulong.Parse(usrResult) == intResult)
+                        if (ulong.TryParse(usrResult, out ulong _))
                         {
-                        Console.Clear();
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Correct");
-                        Console.ForegroundColor = ConsoleColor.White;
+                            if (ulong.Parse(usrResult) == intResult)
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("Correct");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                break;
+                            }
+                            else
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Wrong, correct was: " + intResult.ToString());
+                                break;
+                            }
                         }
                         else
                         {
                             Console.Clear();
-                            Console.WriteLine("Wrong, correct was: " + intResult.ToString());
+                            Console.WriteLine("Invalid input");
                         }
-                    }
-                    
-                }
-                else if (decResult != null && usrResult != "") //if the result is a decimal
-                {
-                    
-                    
-                    if (decResult == decimal.Parse(usrResult, CultureInfo.InvariantCulture))
-                    {
-                        Console.Clear();
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Correct");
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }  
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Wrong, correct was: " + decResult?.ToString(ifp));
-                    }
                         
+                    }
+                    else if (decResult != null && usrResult != "") //if the result is a decimal
+                    {
+                        
+                        if (decimal.TryParse(usrResult, out decimal _))
+                        {
+                            if (decResult == decimal.Parse(usrResult, CultureInfo.InvariantCulture))
+                            {
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("Correct");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                break;
+                            }  
+                            else
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Wrong, correct was: " + decResult?.ToString(ifp));
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Invalid input");
+                            break;
+                        }
+                            
+                    }
+                    else if (usrResult == "" && mode == 1)
+                    {
+                        continue;
+                    }
+                    else if (decResult != null || intResult != null) // works like an else block, since at all times, at least one of the results has a value.
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Invalid result.");
+                        break;
+                    }
+                // 5) repeat 2-4 until the user quits (to be implemented);
                 }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Invalid result.");
-                }
-                // 5) repeat 2-4 until the user quits (to be implemented)
             }
         }
     }
