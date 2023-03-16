@@ -125,9 +125,9 @@ namespace Lunarien_s_Mental_Math_Trainer
                 SpeechSynthesizer synth = new();
                 char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
                 
-                problem = Regex.Replace(problem, @"[\n*^/+\-√]", string.Empty);
+                problem = Regex.Replace(problem, @"[\n*^/+\-√]", " ");
 
-                string[] numbers = problem.Split(' ');
+                string[] numbers = problem.Split("  ");
 
                 for (int i = 0; i < numbers.Length; i++)
                 {
