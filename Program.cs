@@ -95,18 +95,20 @@ namespace Lunarien_s_Mental_Math_Trainer
                 }
             }
         }
-        public static ulong RandomUlong(ulong bottom, ulong top)
+        public static long RandomLong(long bottom, long top)
         {
             Random randomness = new();
-            ulong rangeSize = top - bottom;
+            ulong rangeSize = (ulong)(top - bottom);
 
             byte[] buf = new byte[8];
             randomness.NextBytes(buf);
-            ulong result = (BitConverter.ToUInt64(buf, 0)%rangeSize)+bottom;
-            return result;
+            ulong result = (BitConverter.ToUInt64(buf, 0)%rangeSize)+(ulong)bottom;
+            return (long)result;
         }
         public static string AddCommas(string number)
         {
+            if (number.Length <= 3)
+                return number;
             for (int i = number.Length-3; i >= 0; i -= 3)
             {
                 number = number.Insert(i, ",");
@@ -125,9 +127,17 @@ namespace Lunarien_s_Mental_Math_Trainer
                 SpeechSynthesizer synth = new();
                 char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
                 
-                problem = Regex.Replace(problem, @"[\n*^/+\-√]", " ");
-
-                string[] numbers = problem.Split("  ");
+                problem = Regex.Replace(problem, @"[*^/+\-]", " ");
+                problem = Regex.Replace(problem, @"√", "");
+                string[] numbers;
+                if (op == '√')
+                {
+                    numbers = problem.Split(" ");
+                }
+                else
+                {
+                    numbers = problem.Split(" \n");
+                }
 
                 for (int i = 0; i < numbers.Length; i++)
                 {
@@ -157,7 +167,41 @@ namespace Lunarien_s_Mental_Math_Trainer
                         synth.Speak(problem);
                         break;
                     case '√':
-                        problem = string.Join(" root of", numbers);
+                        if (numbers.Length == 1)
+                        {
+                            problem = "square root of " + numbers[0];
+                        }
+                        else if (numbers.Length == 2)
+                        {
+                            if (numbers[0] == "3")
+                            {
+                                problem = "cube root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "4")
+                            {
+                                problem = "fourth root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "5")
+                            {
+                                problem = "fifth root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "6")
+                            {
+                                problem = "sixth root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "7")
+                            {
+                                problem = "seventh root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "8")
+                            {
+                                problem = "eighth root of " + numbers[1];
+                            }
+                            else if (numbers[0] == "9")
+                            {
+                                problem = "ninth root of " + numbers[1];
+                            }
+                        }
                         synth.Speak(problem);
                         break;
                     default:
@@ -181,13 +225,13 @@ namespace Lunarien_s_Mental_Math_Trainer
             while (true)
             {
                 // 2) make random numbers corresponding to the number of digits in the digit code
-                ulong xRangeBottom = Convert.ToUInt64(Math.Round(Math.Pow(10, usrDC.DigitsX - 1), 0)); //the bottom of the range for X. it is 10^(DigitsX - 1).
-                ulong xRangeTop = Convert.ToUInt64(Math.Round(Math.Pow(10, usrDC.DigitsX), 0)); //the top of the range for X. it is 10^DigitsX
-                ulong x = RandomUlong(xRangeBottom, xRangeTop);
+                long xRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, usrDC.DigitsX - 1), 0)); //the bottom of the range for X. it is 10^(DigitsX - 1).
+                long xRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, usrDC.DigitsX), 0)); //the top of the range for X. it is 10^DigitsX
+                long x = Math.Abs(RandomLong(xRangeBottom, xRangeTop));
 
-                ulong yRangeBottom = Convert.ToUInt64(Math.Round(Math.Pow(10, usrDC.DigitsY - 1), 0));
-                ulong yRangeTop = Convert.ToUInt64(Math.Round(Math.Pow(10, usrDC.DigitsY), 0));
-                ulong y = RandomUlong(yRangeBottom, yRangeTop);
+                long yRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, usrDC.DigitsY - 1), 0));
+                long yRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, usrDC.DigitsY), 0));
+                long y = Math.Abs(RandomLong(yRangeBottom, yRangeTop));
 
                 // 3) make a problem string with the random numbers and the operation
                 string problem;
@@ -212,7 +256,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                     problem = x.ToString() + usrDC.Operation + "\n" + y.ToString();
                 }
     		    // 3.5) precompute the correct solution
-    		    ulong? intResult = null; //the null value indicates that the problem does not have a solution of this type.
+    		    long? intResult = null; //the null value indicates that the problem does not have a solution of this type.
                 decimal? decResult = null;
                 switch (usrDC.Operation)
                 {
@@ -220,11 +264,20 @@ namespace Lunarien_s_Mental_Math_Trainer
                         intResult = x + y;
                         break;
                     case '-':
-                        if (x < y)
-                            intResult = y - x;
-                        else
+                        if (usrDC.DigitsX == usrDC.DigitsY)
+                        {
+                            if (x < y)
+                                intResult = y - x;
+                            else
+                                intResult = x - y;
+                            break;
+                        }
+                        else 
+                        {
                             intResult = x - y;
-                        break;
+                            break;
+                        }
+                        
                     case '*':
                         intResult = x * y;
                         break;
@@ -232,7 +285,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                         decResult = Math.Round((decimal)(Convert.ToDecimal(x) / Convert.ToDecimal(y)), usrDC.Decimals, MidpointRounding.ToZero);
                         break;
                     case '^':
-                        intResult = (ulong)Math.Pow(x, usrDC.DigitsY);
+                        intResult = (long)Math.Pow(x, usrDC.DigitsY);
                         break;
                     case 'R':
                         decResult = Math.Round((decimal)Math.Pow(Convert.ToDouble(y), 1 / Convert.ToDouble(usrDC.DigitsX)), usrDC.Decimals, MidpointRounding.ToZero);
@@ -243,17 +296,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                         break;
                 }
 
-                // 4) ask the user to solve the problem. verify answer. give evaluation (correct/wrong).
-                /*
-                loop:
-                -precompute answer
-                -display problem
-                -get usrResult
-                -if usrResult == "", then:
-                    display the same problem again, any amount of times (as long as the input is "", repeat the problem)
-                -give evaluation
-                */
-                while (true) //a never-nester's worst nightmare.
+                while (true) //a never-nester's worst nightmare approaches.
                 {
                     OutputProblem(problem);
                     Console.Write("Your result: ");
@@ -261,9 +304,9 @@ namespace Lunarien_s_Mental_Math_Trainer
                     string usrResult = Console.ReadLine();
                     if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
                     {
-                        if (ulong.TryParse(usrResult, out ulong _))
+                        if (long.TryParse(usrResult, out long _))
                         {
-                            if (ulong.Parse(usrResult) == intResult)
+                            if (long.Parse(usrResult) == intResult)
                             {
                                 Console.Clear();
                                 Console.ForegroundColor = ConsoleColor.Green;
@@ -288,7 +331,7 @@ namespace Lunarien_s_Mental_Math_Trainer
                     else if (decResult != null && usrResult != "") //if the result is a decimal
                     {
                         
-                        if (decimal.TryParse(usrResult, out decimal _))
+                        if (decimal.TryParse(usrResult, NumberStyles.AllowDecimalPoint, ifp, out decimal _))
                         {
                             if (decResult == decimal.Parse(usrResult, CultureInfo.InvariantCulture))
                             {
