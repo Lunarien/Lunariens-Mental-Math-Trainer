@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Speech.Synthesis;
+using System.Speech.AudioFormat;
 
 namespace Lunarien_s_Mental_Math_Trainer
 {
@@ -73,6 +74,7 @@ namespace Lunarien_s_Mental_Math_Trainer
             }
             
         }
+        
         public static int GetMode()
         {
             Console.WriteLine("Choose a mode:");
@@ -95,6 +97,24 @@ namespace Lunarien_s_Mental_Math_Trainer
                 }
             }
         }
+
+
+        public static SpeechSynthesizer GetUSVoice()
+        {
+            SpeechSynthesizer synth = new();
+            foreach (InstalledVoice voice in synth.GetInstalledVoices())
+            {
+                if (voice.VoiceInfo.Culture.Name.Equals("en-US"))
+                {
+                    synth.SelectVoice(voice.VoiceInfo.Name);
+                    return synth;
+                }
+            }
+            Console.WriteLine("Unable to find en-US voice. Using default voice (not recommended at all unless your system language is english).");
+            return synth;
+        }
+
+        
         public static long RandomLong(long bottom, long top)
         {
             Random randomness = new();
@@ -124,7 +144,7 @@ namespace Lunarien_s_Mental_Math_Trainer
             }
             if (mode == 1) //speech mode
             {
-                SpeechSynthesizer synth = new();
+                SpeechSynthesizer synth = GetUSVoice();
                 char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
                 
                 problem = Regex.Replace(problem, @"[*^/+\-]", " ");
@@ -211,12 +231,55 @@ namespace Lunarien_s_Mental_Math_Trainer
                 
             }
         }
+        public static void OutputVoices(SpeechSynthesizer synth)
+        {
+            Console.WriteLine("Installed voices -");  
+            foreach (InstalledVoice voice in synth.GetInstalledVoices())  
+            {  
+                VoiceInfo info = voice.VoiceInfo;  
+                string AudioFormats = "";  
+                foreach (SpeechAudioFormatInfo fmt in info.SupportedAudioFormats)  
+                {  
+                    AudioFormats += String.Format("{0}\n",  
+                    fmt.EncodingFormat.ToString());  
+                }
+
+                Console.WriteLine(" Name:          " + info.Name);  
+                Console.WriteLine(" Culture:       " + info.Culture);  
+                Console.WriteLine(" Age:           " + info.Age);  
+                Console.WriteLine(" Gender:        " + info.Gender);  
+                Console.WriteLine(" Description:   " + info.Description);  
+                Console.WriteLine(" ID:            " + info.Id);  
+                Console.WriteLine(" Enabled:       " + voice.Enabled);  
+                if (info.SupportedAudioFormats.Count != 0)  
+                {  
+                    Console.WriteLine( " Audio formats: " + AudioFormats);  
+                }  
+                else  
+                {  
+                    Console.WriteLine(" No supported audio formats found");  
+                }  
+
+                string AdditionalInfo = "";  
+                foreach (string key in info.AdditionalInfo.Keys)  
+                {  
+                    AdditionalInfo += String.Format("  {0}: {1}\n", key, info.AdditionalInfo[key]);  
+                }  
+
+                Console.WriteLine(" Additional Info - " + AdditionalInfo);  
+                Console.WriteLine();  
+            }  
+
+        }
+
         static void Main(string[] args)
         {
             IFormatProvider ifp;
             ifp = new CultureInfo("en-US");
             Console.ForegroundColor = ConsoleColor.White;
 
+            SpeechSynthesizer synth = GetUSVoice();
+            
             mode = GetMode();
             // 1) get digit code
             DigitCode usrDC = new();
