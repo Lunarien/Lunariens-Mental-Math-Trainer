@@ -702,11 +702,6 @@ namespace Lunariens_Mental_Math_Trainer
                     GoodConsoleClear();
                     DigitCode usrDC = new();
                     usrDC.Get();
-                    if (usrDC.DigitsX == null) //this should be enough to check if the user wants to exit the program.
-                    {
-                        GoodConsoleClear();
-                        continue;
-                    }
 
                     InitStatistic(usrDC.ToString(), mode);
                     OpenTrainingScreen(sw, ifp, usrDC, synth);
