@@ -414,7 +414,7 @@ namespace Lunariens_Mental_Math_Trainer
                 var records = csv.GetRecords<Statistic>();
                 Statistic[] recordsArray = records.ToList().ToArray();
                 // menu for viewing the statistics follows.
-                bool menuOpen = true;
+                
                 //Print out the statistics in a table.
                 ConsoleTable table = new ConsoleTable("Problem", "Your solution", "Solve time", "Date", "Correct?");
                 foreach (Statistic record in recordsArray)
