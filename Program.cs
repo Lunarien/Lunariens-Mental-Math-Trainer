@@ -1,18 +1,20 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Speech.Synthesis;
 using CsvHelper;
 using CsvHelper.Configuration;
 using ScottPlot;
+using System.Collections.Generic;
+using ConsoleTables;
 using static Lunariens_Mental_Math_Trainer.Modes;
+using System.Linq;
 
 namespace Lunariens_Mental_Math_Trainer
 {
     public enum Modes
     {
+        Exit = -1,
         Text = 0,
         Speech = 1
     }
@@ -34,10 +36,75 @@ namespace Lunariens_Mental_Math_Trainer
         public class DigitCode
         {
             //variables that store digit amounts of X and Y, the operation and optionally the decimal digits
-            public int DigitsX;
-            public int DigitsY;
+            public int DigitsX = 0;
+            public int DigitsY = 0;
             public char Operation;
-            public int Decimals;
+            public int Decimals = 0;
+
+            private int[] ParseNumber(string digitCode)
+            {
+                char[] numbers = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+                int[] parsedNumbers = new int[3];
+                bool decimalFound = false;
+
+                for (int i = 0; i < digitCode.Length; i++)
+                {
+                    if (numbers.Contains(digitCode[i]))
+                    {
+                        if (!decimalFound)
+                        {
+                            if (i == 0)
+                            {
+                                parsedNumbers[0] = int.Parse(digitCode[i].ToString());
+                            }
+                            else if (i == 1)
+                            {
+                                if (digitCode.Length > 3)
+                                {
+                                    parsedNumbers[0] = int.Parse(digitCode.Substring(0, 2));
+                                    parsedNumbers[1] = int.Parse(digitCode.Substring(2, digitCode.Length - 3));
+                                }
+                                else
+                                {
+                                    parsedNumbers[0] = int.Parse(digitCode[0].ToString());
+                                    parsedNumbers[1] = int.Parse(digitCode[2].ToString());
+                                }
+                            }
+                            else if (i == 2)
+                            {
+                                parsedNumbers[1] = int.Parse(digitCode[i].ToString());
+                            }
+                        }
+                        else
+                        {
+                            parsedNumbers[2] = int.Parse(digitCode.Substring(i, digitCode.Length - i));
+                            break;
+                        }
+                    }
+                    else if (digitCode[i] == '.')
+                    {
+                        decimalFound = true;
+                    }
+                }
+
+                return parsedNumbers;
+            }
+
+            private char GetOperator(string digitCode)
+            {
+                char[] operations = { '+', '-', '*', '/', '^', 'R' };
+
+                foreach (char operation in operations)
+                {
+                    if (digitCode.Contains(operation))
+                    {
+                        return operation;
+                    }
+                }
+
+                return '\0';
+            }
+
             public void Get()
             {
                 char[] numbers = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
@@ -49,6 +116,12 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     Console.Write("Digit code: ");
                     string usrDigitCode = Console.ReadLine();
+
+                    if (usrDigitCode == "exit")
+                    {
+                        return;
+                    }
+
                     if (usrDigitCode.Length == 3 && !usrDigitCode.Contains('/') && !usrDigitCode.Contains('R')) //then check if the first and the third symbol are numbers and the second is an operation.
                     {
                         if (numbers.Contains(usrDigitCode[0]) & operations.Contains(usrDigitCode[1]) & numbers.Contains(usrDigitCode[2]))
@@ -75,6 +148,7 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     else if (usrDigitCode == "help")
                     {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine("A digit code looks like the following:");
                         Console.WriteLine("XopY.Z");
                         Console.WriteLine("X and Y represent the number of digits for the first and second (random) number, respectively.");
@@ -86,32 +160,56 @@ namespace Lunariens_Mental_Math_Trainer
                         Console.WriteLine("The last two symbols are required for / and R operations.");
                         Console.WriteLine("They represent the amount of decimal digits needed in the result.");
                         Console.WriteLine("The dot is required when specifying the amount of decimal digits. Z is the amount of decimals.");
-                    }
-                    else if (usrDigitCode == "exit")
-                    {
-                        return;
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                     else
                     {
-                        Console.WriteLine("Invalid digit code format. (Did you forget a decimal point?)");
+                        Console.WriteLine("Invalid digit code format. (Did you forget a decimal point? Did you type a two digit number somewhere?)");
                     }
+
                 }
             }
             public override string ToString() => Decimals == 0 ? $"{DigitsX}{Operation}{DigitsY}" : $"{DigitsX}{Operation}{DigitsY}.{Decimals}";
         }
-        
-        public static int GetMode()
+
+        public static void GoodConsoleClear()
         {
+            Console.Clear(); // Clearing the console works goofily in case of Windows Terminal. This abomination is a workaround for that.
+            Console.WriteLine("\f\u001bc\x1b[3J");
+            Console.Clear();
+        }
+
+        public static Modes GetMode()
+        {
+            int[] possibleModes = { 0, 1 };
             Console.WriteLine("Choose a mode:");
             Console.WriteLine("0 - Text mode");
-            Console.WriteLine("1 - Speech mode");
+            Console.WriteLine("1 - Text to speech mode");
+            Console.WriteLine("(Type \"exit\" to return to the main menu.)");
             while (true)
             {
-                string input = Console.ReadLine();
                 Console.Write("Mode: ");
-                if (!int.TryParse(input, out int i)) Console.WriteLine("Invalid mode.");
-                else if (input == "exit") return -1;
-                else return i;
+                string input = Console.ReadLine();
+                if (!int.TryParse(input, out int result))
+                {
+                    if (input != "exit")
+                    {
+                        Console.WriteLine("Error: Invalid mode");
+                        continue;
+                    }
+                    return Exit;
+                }
+                else if (int.TryParse(input, out int number))
+                    if (possibleModes.Contains(number))
+                    {
+                        Modes selectedMode = (Modes)number;
+                        return selectedMode;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Invalid mode");
+                        continue;
+                    }
             }
         }
 
@@ -127,11 +225,11 @@ namespace Lunariens_Mental_Math_Trainer
                     return synth;
                 }
             }
-            Console.WriteLine("Unable to find en-US voice. Using default voice (not recommended at all unless your system language is english).");
+            Console.WriteLine("Unable to find en-US voice. Using default voice (not recommended at all unless your system language is some form of english).");
             return synth;
         }
 
-        
+
         public static long RandomLong(long bottom, long top)
         {
             Random randomness = new();
@@ -139,37 +237,37 @@ namespace Lunariens_Mental_Math_Trainer
 
             byte[] buf = new byte[8];
             randomness.NextBytes(buf);
-            ulong result = (BitConverter.ToUInt64(buf, 0)%rangeSize)+(ulong)bottom;
+            ulong result = (BitConverter.ToUInt64(buf, 0) % rangeSize) + (ulong)bottom;
             return (long)result;
         }
-        
+
         public static string AddCommas(string number)
         {
             if (number.Length <= 3)
                 return number;
-            for (int i = number.Length-3; i >= 0; i -= 3)
+            for (int i = number.Length - 3; i >= 0; i -= 3)
             {
                 number = number.Insert(i, ",");
             }
             return number;
         }
-        
+
         public static void OutputProblem(string problem, SpeechSynthesizer synth)
         {
-            
+
             if (mode == 0) //text mode
             {
                 Console.WriteLine(problem);
             }
             if (mode is Speech) //speech mode
             {
-                
+
                 char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
-                
-                problem = Regex.Replace(problem, @"[*^/+\-]", " ");
+
+                problem = Regex.Replace(problem, @"[*^/+\-]", " "); //put a space between numbers instead of the operator
                 problem = Regex.Replace(problem, @"√", "");
                 string[] numbers;
-                if (op == '√')
+                if (op == '√' || op == '^') //split the problem into individual numbers
                 {
                     numbers = problem.Split(" ");
                 }
@@ -182,7 +280,7 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     numbers[i] = AddCommas(numbers[i]);
                 }
-                
+
                 switch (op)
                 {
                     case '+':
@@ -202,7 +300,18 @@ namespace Lunariens_Mental_Math_Trainer
                         synth.Speak(problem);
                         break;
                     case '^':
-                        problem = string.Join(" to the power of ", numbers);
+                        if (numbers[1] == "2")
+                        {
+                            problem = numbers[0] + " squared";
+                        }
+                        else if (numbers[1] == "3")
+                        {
+                            problem = numbers[0] + " cubed";
+                        }
+                        else
+                        {
+                            problem = string.Join(" to the power of ", numbers);
+                        }
                         synth.Speak(problem);
                         break;
                     case '√':
@@ -221,13 +330,14 @@ namespace Lunariens_Mental_Math_Trainer
                         synth.Speak(problem);
                         break;
                     default:
-                        Console.WriteLine("An error occured during processing of the problem for speech output.");
+                        Console.WriteLine("An error occured during processing of the problem for speech output. This happened during switch of operations (dev note)");
+                        Thread.Sleep(5000);
                         break;
                 }
             }
         }
-        
-        public static void OpenStatistic(string digitCode, Modes mode)
+
+        public static void OpenStatisticGraph(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/'))
             {
@@ -237,7 +347,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 digitCode = digitCode.Replace('*', 'x');
             }
-            
+
             string path = $@"./stats/{digitCode}m{(int)mode}.csv";
             if (!File.Exists(path))
             {
@@ -247,50 +357,87 @@ namespace Lunariens_Mental_Math_Trainer
 
             var reader = new StreamReader(path);
             var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            
+
+            var records = csv.GetRecords<Statistic>();
+            var plt = new Plot(900, 600);
+
+            List<double> solveTimes = records.Select(record => Math.Round(record.SolveTime, 3)).ToList();
+
+            var signal = plt.AddSignal(solveTimes.ToArray());
+            signal.LineWidth = 2;
+            signal.MarkerSize = 0;
+            signal.Color = System.Drawing.ColorTranslator.FromHtml("#bf616a");
+
+            var modeName = mode.ToString();
+
+            plt.YAxis.SetBoundary(0, 1.1 * solveTimes.Max());
+            plt.XAxis.SetBoundary(-0.5, solveTimes.Count + 0.5);
+            plt.Title("Solve times for " + digitCode + " (mode " + modeName + ")");
+            plt.YLabel("Solve time (s)");
+
+            plt.XAxis.Ticks(false);
+            plt.XAxis.Line(false);
+            plt.YAxis2.Line(false);
+            plt.XAxis2.Line(false);
+
+            plt.Palette = ScottPlot.Palette.OneHalfDark;
+            plt.Style(ScottPlot.Style.Gray1);
+            var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
+            plt.Style(figureBackground: bnColor, dataBackground: bnColor);
+
+
+            var pltWindow = new ScottPlot.FormsPlotViewer(plt, 900, 600, "Solve times for " + digitCode + " (mode " + modeName + ")");
+            pltWindow.BackColor = bnColor;
+            pltWindow.ShowDialog();
+        }
+        public static void OpenStatisticScreen(string digitCode, Modes mode)
+        {
+            if (digitCode.Contains("/")) //replace the slash with a different character so the file can be found. the file name cannot contain a slash.
+            {
+                digitCode = digitCode.Replace("/", "÷");
+            }
+            else if (digitCode.Contains("*")) //replace the asterisk with a different character so the file can be found. the file name cannot contain an asterisk.
+            {
+                digitCode = digitCode.Replace("*", "x");
+            }
+
+            string path = $@"./stats/{digitCode}m{(int)mode}.csv";
+            if (!File.Exists(path))
+            {
+                Console.WriteLine("No statistic found for the selected digit code.");
+                return;
+            }
+
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
                 var records = csv.GetRecords<Statistic>();
-                var plt = new Plot(900, 600);
+                Statistic[] recordsArray = records.ToList().ToArray();
+                // menu for viewing the statistics follows.
+                bool menuOpen = true;
+                //Print out the statistics in a table.
+                ConsoleTable table = new ConsoleTable("Problem", "Your solution", "Solve time", "Date", "Correct?");
+                foreach (Statistic record in recordsArray)
+                {
+                    table.AddRow(record.Problem, record.UsrSolution, record.SolveTime.ToString(), record.Date.ToString(), record.Correctness.ToString());
+                }
+                table.Write();
+            }
+            Console.Write("Press any key to continue...");
+            Console.ReadKey();
 
-                List<double> solveTimes = records.Select(record => Math.Round(record.SolveTime, 3)).ToList();
-
-                var signal = plt.AddSignal(solveTimes.ToArray());
-                signal.LineWidth = 2;
-                signal.MarkerSize = 0;
-                signal.Color = System.Drawing.ColorTranslator.FromHtml("#bf616a");
-
-                var modeName = mode.ToString();
-                
-                plt.YAxis.SetBoundary(0, 1.1 * solveTimes.Max());
-                plt.XAxis.SetBoundary(-0.5, solveTimes.Count+0.5);
-                plt.Title("Solve times for " + digitCode + " (mode " + modeName + ")");
-                plt.YLabel("Solve time (s)");
-                
-                plt.XAxis.Ticks(false);
-                plt.XAxis.Line(false);
-                plt.YAxis2.Line(false);
-                plt.XAxis2.Line(false);
-                
-                plt.Palette = ScottPlot.Palette.OneHalfDark;
-                plt.Style(ScottPlot.Style.Gray1);
-                var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
-                plt.Style(figureBackground: bnColor, dataBackground: bnColor);
-
-                
-                var pltWindow = new FormsPlotViewer(plt, 900, 600,
-                    "Solve times for " + digitCode + " (mode " + modeName + ")");
-                pltWindow.BackColor = bnColor;
-                pltWindow.ShowDialog();
-            
+            GoodConsoleClear();
+            return;
         }
         public class Statistic
         {
-            public string Problem { get; set; }
-            public string UsrSolution { get; set; }
+            public string? Problem { get; set; }
+            public string? UsrSolution { get; set; }
             public double SolveTime { get; set; }
             public DateTime Date { get; set; }
             public bool Correctness { get; set; }
         }
-        
+
         public static void InitStatistic(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/'))
@@ -305,7 +452,7 @@ namespace Lunariens_Mental_Math_Trainer
             string path = $@"{dirPath}{digitCode}m{(int)mode}.csv";
             if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
             if (File.Exists(path)) return;
-            
+
 
             StreamWriter sw = new StreamWriter(path, true);
             var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
@@ -317,11 +464,11 @@ namespace Lunariens_Mental_Math_Trainer
         {
             string path = $@".\stats\{statName}m{(int)mode}.csv";
             path = path.Replace('*', 'x'); //replace * with x because windows doesn't allow * in file names
-            //if path contains three slashes, remove the last one
-            
+                                           //if path contains three slashes, remove the last one
+
             path = path.Replace("/", "÷");
-            var record = new Statistic {Problem = problem.Replace("\n", ""), UsrSolution = usrSolution, SolveTime = time, Date = date, Correctness = correctness};
-            
+            var record = new Statistic { Problem = problem.Replace("\n", ""), UsrSolution = usrSolution, SolveTime = time, Date = date, Correctness = correctness };
+
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 // Don't write the header again.
@@ -336,10 +483,10 @@ namespace Lunariens_Mental_Math_Trainer
                 csv.NextRecord();
             }
         }
-        
+
         public static void OpenTrainingScreen(Stopwatch stopWatch, IFormatProvider ifp, DigitCode digitCode, SpeechSynthesizer speechSynth)
         {
-            Console.Clear();
+            GoodConsoleClear();
             while (true)
             {
                 // make random numbers corresponding to the number of digits in the digit code
@@ -367,14 +514,14 @@ namespace Lunariens_Mental_Math_Trainer
                     {
                         problem = digitCode.DigitsX.ToString() + '√' + y;
                     }
-                    
+
                 }
                 else
                 {
                     problem = x.ToString() + digitCode.Operation + "\n" + y;
                 }
-    		    // precompute the correct solution
-    		    long? intResult = null; //the null value indicates that the problem does not have a solution of this type. this is utilized later.
+                // precompute the correct solution
+                long? intResult = null; //the null value indicates that the problem does not have a solution of this type. this is utilized later.
                 decimal? decResult = null;
                 switch (digitCode.Operation)
                 {
@@ -392,8 +539,8 @@ namespace Lunariens_Mental_Math_Trainer
                         }
                         intResult = x - y;
                         break;
-                        
-                        
+
+
                     case '*':
                         intResult = x * y;
                         break;
@@ -416,13 +563,22 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     stopWatch.Reset();
                     OutputProblem(problem, speechSynth);
-                    
+
                     Console.Write("Your result: ");
 
                     stopWatch.Start();
                     string usrResult = Console.ReadLine();
                     stopWatch.Stop();
 
+                    // truncate the result down to the number of decimals specified in the digit code, so that extra decimals don't cause the answer to be marked wrong
+                    {
+                        int decimalIndex = usrResult.IndexOf('.') + digitCode.Decimals + 1;
+
+                        if (usrResult.Length > decimalIndex && usrResult.Contains('.'))
+                        {
+                            usrResult = usrResult.Substring(0, decimalIndex + digitCode.Decimals);
+                        }
+                    }
                     // start verifying the answer
                     if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
                     {
@@ -430,77 +586,77 @@ namespace Lunariens_Mental_Math_Trainer
                         {
                             if (long.Parse(usrResult) == intResult) // if correct
                             {
-                                Console.Clear();
+                                GoodConsoleClear();
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("Correct");
                                 Console.ForegroundColor = ConsoleColor.White;
                                 SaveStatistic(digitCode.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, true);
-                                
+
                                 break;
                             }
                             else
                             {
                                 SaveStatistic(digitCode.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, false);
-                                Console.Clear();
+                                GoodConsoleClear();
                                 Console.WriteLine("Wrong, correct was: " + intResult);
-                                
+
                                 break;
                             }
                         }
                         else
                         {
-                            Console.Clear();
+                            GoodConsoleClear();
                             Console.WriteLine("Invalid input, try again.");
                         }
-                        
+
                     }
                     else if (decResult != null && usrResult != "") //if the result is a decimal
                     {
-                        
+
                         if (decimal.TryParse(usrResult, NumberStyles.AllowDecimalPoint, ifp, out decimal _))
                         {
                             if (decResult == decimal.Parse(usrResult, CultureInfo.InvariantCulture))
                             {
                                 SaveStatistic(digitCode.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, true);
-                                Console.Clear();
+                                GoodConsoleClear();
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("Correct");
                                 Console.ForegroundColor = ConsoleColor.White;
-                                
+
                                 break;
-                            }  
+                            }
                             else
                             {
                                 SaveStatistic(digitCode.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, false);
-                                Console.Clear();
+                                GoodConsoleClear();
                                 Console.WriteLine("Wrong, correct was: " + decResult?.ToString(ifp));
-                                
+
                                 break;
                             }
                         }
                         else
                         {
-                            Console.Clear();
+                            GoodConsoleClear();
                             Console.WriteLine("Invalid input, try again.");
                             continue;
                         }
-                            
+
                     }
                     else if (usrResult == "" && mode is Speech)
                     {
-                        Console.Clear();
+                        GoodConsoleClear();
                         continue;
                     }
                     else if (decResult != null || intResult != null) // works like an else block, since at all times, at least one of the results has a value.
                     { //so why is this here?....
-                        Console.Clear();
+                        GoodConsoleClear();
                         Console.WriteLine("Invalid result.");
                         break;
                     }
 
                     if (usrResult == "exit")
                     {
-                        Console.Clear();
+                        GoodConsoleClear();
                         return;
                     }
                 }
@@ -509,22 +665,26 @@ namespace Lunariens_Mental_Math_Trainer
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
             Stopwatch sw = new();
 
             IFormatProvider ifp = new CultureInfo("en-US");
 
             Console.ForegroundColor = ConsoleColor.White;
 
+
             SpeechSynthesizer synth = GetUSVoice();
             Console.WriteLine("Welcome to LMMT! (Lunarien's Mental Math Trainer)");
 
-            while (true) //when the program starts. this loop will have the main menu with its functionality.
+            while (true) //when the program starts. this loop will ensure the existence of the main menu with its functionality.
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Main menu:");
                 Console.WriteLine("1) Start (infinite) training");
-                Console.WriteLine("2) View a statistic file from a list");
-                Console.WriteLine("3) View statistics for a specific problem type");
+                Console.WriteLine("2) View a statistic graph from a list");
+                Console.WriteLine("3) View a statistic graph for a specific problem type");
+                Console.WriteLine("4) View console statistic from a list");
+                Console.WriteLine("5) View console statistic for a specific problem type");
                 Console.WriteLine("9) Exit LMMT");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Your choice: ");
@@ -532,31 +692,41 @@ namespace Lunariens_Mental_Math_Trainer
 
                 if (usrChoice == "1")
                 {
-                    Console.Clear();
-                    mode = (Modes)GetMode(); //writing to the global variable mode. it is used for determining the output type. (text or speech)
-                    
-                    Console.Clear();
+                    GoodConsoleClear();
+                    mode = GetMode(); //writing to the global variable mode. it is used for determining the output type. (text or speech)
+                    if (mode == Exit) //if user wants to exit
+                    {
+                        GoodConsoleClear();
+                        continue;
+                    }
+                    GoodConsoleClear();
                     DigitCode usrDC = new();
                     usrDC.Get();
+                    if (usrDC.DigitsX == null) //this should be enough to check if the user wants to exit the program.
+                    {
+                        GoodConsoleClear();
+                        continue;
+                    }
+
                     InitStatistic(usrDC.ToString(), mode);
                     OpenTrainingScreen(sw, ifp, usrDC, synth);
                 }
-                else if (usrChoice == "2") //TODO: Why is this not in the OpenStatistics inside the Statistic class
+                else if (usrChoice == "2")
                 {
                     string[] files = Array.Empty<string>();
-                    //check if there any any files, if yes, then list them.             
+                    //check if there are any files, if yes, then list them.
                     if (Directory.Exists("stats")) files = Directory.GetFiles("stats");
                     else
                     {
                         Console.WriteLine("No statistics found. Press enter to continue.");
                         Console.ReadLine();
                     }
-      
+
 
 
                     if (files.Length != 0)
                     {
-                        Console.Clear();
+                        GoodConsoleClear();
                         Console.WriteLine("Existing statistics:");
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         for (int i = 0; i < files.Length; i++)
@@ -568,30 +738,30 @@ namespace Lunariens_Mental_Math_Trainer
                         string usrFileChoice = Console.ReadLine();
 
                         int fileMode;
-                        
+
                         // retrieve the mode from the file name. This is used in the OpenStatistic method below.
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
                             if (files[int.Parse(usrFileChoice) - 1][6..].Length == 9) //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
                                 fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][6..][4].ToString());
-                            
+
                             else fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][6..][6].ToString());
-                            
+
                         }
                         else if (usrFileChoice == "exit")
                         {
-                            Console.Clear();
+                            GoodConsoleClear();
                             continue;
                         }
                         else
                         {
-                            Console.Clear();
+                            GoodConsoleClear();
                             Console.WriteLine("Invalid choice, try again.");
                             Thread.Sleep(1000);
-                            Console.Clear();
+                            GoodConsoleClear();
                             continue;
                         }
-                        
+
                         if (int.TryParse(usrFileChoice, out int _))
                         {
                             if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
@@ -599,44 +769,132 @@ namespace Lunariens_Mental_Math_Trainer
                                 if (files[int.Parse(usrFileChoice) - 1].Substring(6).Length == 9)
                                 {
                                     string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(6, 3);
-                                    OpenStatistic(statDigitCode, (Modes)fileMode);
+                                    OpenStatisticGraph(statDigitCode, (Modes)fileMode);
                                 }
                                 else
                                 {
                                     string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(6, 5);
-                                    OpenStatistic(statDigitCode, (Modes)fileMode);
+                                    OpenStatisticGraph(statDigitCode, (Modes)fileMode);
                                 }
                             }
                             else
                             {
-                                Console.Clear();
+                                GoodConsoleClear();
                                 Console.WriteLine("Invalid choice, try again.");
                             }
                         }
                         else
                         {
-                            Console.Clear();
+                            GoodConsoleClear();
                             Console.WriteLine("Invalid choice, try again.");
                         }
                     }
-                    Console.Clear();
+                    GoodConsoleClear();
                 }
-                else if (usrChoice == "3") //TODO: Why is this not in the OpenStatistics(Specific) inside the Statistic class
+                else if (usrChoice == "3")
                 {
-                    Console.Clear();
-                    int selectedMode = GetMode();
-                    if (selectedMode == -1) //if user wants to exit
+                    GoodConsoleClear();
+                    Modes selectedMode = GetMode();
+                    if (selectedMode == Exit) //if user wants to exit
                     {
-                        Console.Clear();
+                        GoodConsoleClear();
                         continue;
                     }
 
-                    Console.Clear();
+                    GoodConsoleClear();
                     DigitCode usrDC = new();
                     usrDC.Get();
-                    
-                    OpenStatistic(usrDC.ToString(), (Modes)selectedMode);
-                    Console.Clear();
+
+                    OpenStatisticGraph(usrDC.ToString(), (Modes)selectedMode);
+                    GoodConsoleClear();
+                }
+                else if (usrChoice == "4") // view a list of digit code statistic files and let user choose which one to view
+                {
+                    GoodConsoleClear();
+                    // list existing statistic files
+                    string[] files = Directory.GetFiles("stats");
+                    if (files.Length != 0)
+                    {
+                        GoodConsoleClear();
+                        Console.WriteLine("Existing statistics:");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            Console.WriteLine($"{i + 1}) {files[i].Substring(6)}");
+                        }
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Statistic to open: ");
+                        string usrFileChoice = Console.ReadLine();
+
+                        Modes fileMode;
+
+                        // retrieve the mode from the file name. This is used in the OpenStatisticScreen method below.
+                        if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
+                        {
+                            if (files[int.Parse(usrFileChoice) - 1].Substring(6).Length == 9) //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
+                            {
+                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1].Substring(6)[4].ToString());
+                            }
+                            else
+                            {
+                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1].Substring(6)[6].ToString());
+                            }
+                        }
+                        else if (usrFileChoice == "exit")
+                        {
+                            GoodConsoleClear();
+                            continue;
+                        }
+                        else
+                        {
+                            GoodConsoleClear();
+                            Console.WriteLine("Invalid choice, try again.");
+                            Thread.Sleep(1000);
+                            GoodConsoleClear();
+                            continue;
+                        }
+
+                        if (int.TryParse(usrFileChoice, out int _))
+                        {
+                            if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
+                            {
+                                if (files[int.Parse(usrFileChoice) - 1].Substring(6).Length == 9)
+                                {
+                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(6, 3);
+                                    GoodConsoleClear();
+                                    OpenStatisticScreen(statDigitCode, fileMode);
+                                }
+                                else
+                                {
+                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(6, 5);
+                                    GoodConsoleClear();
+                                    OpenStatisticScreen(statDigitCode, fileMode);
+                                }
+                            }
+                            else
+                            {
+                                GoodConsoleClear();
+                                Console.WriteLine("Invalid choice, try again.");
+                            }
+                        }
+                    }
+
+                }
+                else if (usrChoice == "5") // view console statistics for specific digit code
+                {
+                    GoodConsoleClear();
+                    Modes selectedMode = GetMode();
+                    if (selectedMode == Exit) //if user wants to exit
+                    {
+                        GoodConsoleClear();
+                        continue;
+                    }
+
+                    GoodConsoleClear();
+                    DigitCode usrDC = new();
+                    usrDC.Get();
+                    GoodConsoleClear();
+                    OpenStatisticScreen(usrDC.ToString(), selectedMode);
                 }
                 else if (usrChoice == "9")
                 {
@@ -646,11 +904,11 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else
                 {
-                    Console.Clear();
+                    GoodConsoleClear();
                     Console.WriteLine("Invalid choice, try again.");
                     Thread.Sleep(1000);
                 }
-                
+
             }
         }
     }

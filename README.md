@@ -16,6 +16,8 @@ When you start the program, you will be met with a menu screen with several acti
 * Train with a never-ending problem set
 * View a statistic file (as a graph) from the *stats* folder by selecting it from a list
 * View a statistic file (as a graph) from the *stats* folder by typing out the digit code of the problem stats saved in the file. Note that the name of the file corresponds to the problem statistics saved in it
+* View a statistic file (through a console menu) from the *stats* folder by selecting it from a list
+* View a statistic file (through a console menu) folder by typing out the digit code of the problem stats saved in the file.
 * Exit LMMT
 
 When training in speech mode, you can press enter without having any text typed out to repeat the problem, in case you misheard or forgot it.
@@ -31,6 +33,7 @@ When training in speech mode, you can press enter without having any text typed 
 * Graphing statistics
 
 # Plans
+* Make sure that there is no silence at the end of the generated TTS audio. This silence givees time advantage to the user and can make it so that a problem takes you 0 or so seconds.
 * Custom averages (like average of 10 problems, of 5, and arithmetic means)
 * bursts of problems (e. g. 10 problems at a time)
 * using multiple problem types in one training session
