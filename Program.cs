@@ -419,11 +419,19 @@ namespace Lunariens_Mental_Math_Trainer
                 ConsoleTable table = new ConsoleTable("Problem", "Your solution", "Solve time", "Date", "Correct?");
                 foreach (Statistic record in recordsArray)
                 {
-                    table.AddRow(record.Problem, record.UsrSolution, record.SolveTime.ToString(), record.Date.ToString(), record.Correctness.ToString());
+                    string boolWord;
+                    if (record.Correctness == true) {
+                        boolWord = "Yes";
+                    }
+                    else {
+                        boolWord = "No";
+                    }
+
+                    table.AddRow(record.Problem, record.UsrSolution, record.SolveTime.ToString() + "s", record.Date.ToString(), boolWord);
                 }
                 table.Write();
             }
-            Console.Write("Press any key to continue...");
+            Console.Write("Press any key to go back to main menu...");
             Console.ReadKey();
 
             GoodConsoleClear();
@@ -448,7 +456,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 digitCode = digitCode.Replace("*", "x");
             }
-            string dirPath = "./stats";
+            string dirPath = "./stats/";
             string path = $@"{dirPath}{digitCode}m{(int)mode}.csv";
             if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
             if (File.Exists(path)) return;
@@ -458,13 +466,14 @@ namespace Lunariens_Mental_Math_Trainer
             var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
             csv.WriteHeader<Statistic>();
             csv.NextRecord();
+            csv.Flush();
+            sw.Close();
         }
 
         public static void SaveStatistic(string statName, string problem, string usrSolution, double time, DateTime date, bool correctness)
         {
             string path = $@".\stats\{statName}m{(int)mode}.csv";
             path = path.Replace('*', 'x'); //replace * with x because windows doesn't allow * in file names
-                                           //if path contains three slashes, remove the last one
 
             path = path.Replace("/", "÷");
             var record = new Statistic { Problem = problem.Replace("\n", ""), UsrSolution = usrSolution, SolveTime = time, Date = date, Correctness = correctness };
@@ -563,7 +572,9 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     stopWatch.Reset();
                     OutputProblem(problem, speechSynth);
-
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("Type \"exit\" to return to the main menu.");
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("Your result: ");
 
                     stopWatch.Start();
