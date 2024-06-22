@@ -5,10 +5,9 @@ using System.Speech.Synthesis;
 using CsvHelper;
 using CsvHelper.Configuration;
 using ScottPlot;
-using System.Collections.Generic;
 using ConsoleTables;
 using static Lunariens_Mental_Math_Trainer.Modes;
-using System.Linq;
+
 
 namespace Lunariens_Mental_Math_Trainer
 {
@@ -119,6 +118,9 @@ namespace Lunariens_Mental_Math_Trainer
 
                     if (usrDigitCode == "exit")
                     {
+                        DigitsX = -1;
+                        DigitsY = -1;
+                        Operation = '\0';
                         return;
                     }
 
@@ -362,14 +364,25 @@ namespace Lunariens_Mental_Math_Trainer
             var plt = new Plot(900, 600);
 
             List<double> solveTimes = records.Select(record => Math.Round(record.SolveTime, 3)).ToList();
+            List<bool> solveCorrectnesses = records.Select(record => record.Correctness).ToList();
 
             var signal = plt.AddSignal(solveTimes.ToArray());
             signal.LineWidth = 2;
-            signal.MarkerSize = 0;
+            signal.MarkerSize = 3;
             signal.Color = System.Drawing.ColorTranslator.FromHtml("#bf616a");
 
-            var modeName = mode.ToString();
+            for (int i = 0; i < solveCorrectnesses.Count; i++)
+            {
+                if (solveCorrectnesses[i] == false)
+                {
+                    plt.AddHorizontalSpan(i - 0.5, i + 0.5, color: System.Drawing.ColorTranslator.FromHtml("#bf616a"));
+                }
+            }
 
+            var modeName = mode.ToString();
+            if (solveTimes.Count == 0){
+                return;
+            }
             plt.YAxis.SetBoundary(0, 1.1 * solveTimes.Max());
             plt.XAxis.SetBoundary(-0.5, solveTimes.Count + 0.5);
             plt.Title("Solve times for " + digitCode + " (mode " + modeName + ")");
@@ -573,7 +586,12 @@ namespace Lunariens_Mental_Math_Trainer
                     stopWatch.Reset();
                     OutputProblem(problem, speechSynth);
                     Console.ForegroundColor = ConsoleColor.DarkGray;
+                    if (mode == Modes.Speech) {
+                        Console.WriteLine("Type \"exit\" to return to the main menu. Enter nothing to repeat the problem");
+                    }
+                    else {
                     Console.WriteLine("Type \"exit\" to return to the main menu.");
+                    }
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("Your result: ");
 
@@ -590,8 +608,14 @@ namespace Lunariens_Mental_Math_Trainer
                             usrResult = usrResult.Substring(0, decimalIndex + digitCode.Decimals);
                         }
                     }
-                    // start verifying the answer
-                    if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
+
+                    // start verifying the answer, checking whether it's a number or the exit command
+                    if (usrResult == "exit") //check for the exit command first to combat issues.
+                    {
+                        GoodConsoleClear();
+                        return;
+                    }
+                    else if (intResult != null && usrResult != "") //if the result is an int. in other words, if there is a result that is of type int.
                     {
                         if (long.TryParse(usrResult, out long _))
                         {
@@ -665,11 +689,6 @@ namespace Lunariens_Mental_Math_Trainer
                         break;
                     }
 
-                    if (usrResult == "exit")
-                    {
-                        GoodConsoleClear();
-                        return;
-                    }
                 }
             }
         }
@@ -714,6 +733,11 @@ namespace Lunariens_Mental_Math_Trainer
                     DigitCode usrDC = new();
                     usrDC.Get();
 
+                    if (usrDC.DigitsX == -1 && usrDC.DigitsY == -1 && usrDC.Operation == '\0') //if user wants to exit
+                    {
+                        GoodConsoleClear();
+                        continue;
+                    }
                     InitStatistic(usrDC.ToString(), mode);
                     OpenTrainingScreen(sw, ifp, usrDC, synth);
                 }
@@ -721,15 +745,11 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     string[] files = Array.Empty<string>();
                     //check if there are any files, if yes, then list them.
-                    if (Directory.Exists("stats")) files = Directory.GetFiles("stats");
-                    else
-                    {
-                        Console.WriteLine("No statistics found. Press enter to continue.");
-                        Console.ReadLine();
-                    }
+                    if (Directory.Exists("./stats")) files = Directory.GetFiles("stats");
+                    
 
-
-
+                    bool isGotoUsed = false;
+                    menuChoice2Start: //label for the goto statement later on.
                     if (files.Length != 0)
                     {
                         GoodConsoleClear();
@@ -745,6 +765,9 @@ namespace Lunariens_Mental_Math_Trainer
 
                         int fileMode;
 
+                        // if the stats are empty, handle it.
+
+                        
                         // retrieve the mode from the file name. This is used in the OpenStatistic method below.
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
@@ -762,10 +785,15 @@ namespace Lunariens_Mental_Math_Trainer
                         else
                         {
                             GoodConsoleClear();
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Invalid choice, try again.");
-                            Thread.Sleep(1000);
-                            GoodConsoleClear();
-                            continue;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            if (!isGotoUsed)
+                            {
+                                isGotoUsed = true;
+                                goto menuChoice2Start;
+                            }
+                            goto menuChoice2Start;
                         }
 
                         if (int.TryParse(usrFileChoice, out int _))
@@ -795,7 +823,13 @@ namespace Lunariens_Mental_Math_Trainer
                             Console.WriteLine("Invalid choice, try again.");
                         }
                     }
+                    
                     GoodConsoleClear();
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("No statistics found inside the selected file.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    continue;
                 }
                 else if (usrChoice == "3")
                 {
@@ -811,7 +845,7 @@ namespace Lunariens_Mental_Math_Trainer
                     DigitCode usrDC = new();
                     usrDC.Get();
 
-                    OpenStatisticGraph(usrDC.ToString(), (Modes)selectedMode);
+                    OpenStatisticGraph(usrDC.ToString(), selectedMode);
                     GoodConsoleClear();
                 }
                 else if (usrChoice == "4") // view a list of digit code statistic files and let user choose which one to view
