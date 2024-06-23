@@ -360,7 +360,7 @@ namespace Lunariens_Mental_Math_Trainer
             var reader = new StreamReader(path);
             var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-            var records = csv.GetRecords<Statistic>();
+            var records = csv.GetRecords<Statistic>().ToList();
             var plt = new Plot(900, 600);
 
             List<double> solveTimes = records.Select(record => Math.Round(record.SolveTime, 3)).ToList();
@@ -371,16 +371,20 @@ namespace Lunariens_Mental_Math_Trainer
             signal.MarkerSize = 3;
             signal.Color = System.Drawing.ColorTranslator.FromHtml("#bf616a");
 
+            
             for (int i = 0; i < solveCorrectnesses.Count; i++)
             {
                 if (solveCorrectnesses[i] == false)
                 {
-                    plt.AddHorizontalSpan(i - 0.5, i + 0.5, color: System.Drawing.ColorTranslator.FromHtml("#bf616a"));
+                    var hSpan = plt.AddHorizontalSpan(i - 0.25, i + 0.25);
+                    hSpan.Color = System.Drawing.Color.FromArgb(128, 191, 97, 106);
+                    
                 }
             }
 
             var modeName = mode.ToString();
-            if (solveTimes.Count == 0){
+            if (solveTimes.Count == 0)
+            {
                 return;
             }
             plt.YAxis.SetBoundary(0, 1.1 * solveTimes.Max());
@@ -427,16 +431,18 @@ namespace Lunariens_Mental_Math_Trainer
                 var records = csv.GetRecords<Statistic>();
                 Statistic[] recordsArray = records.ToList().ToArray();
                 // menu for viewing the statistics follows.
-                
+
                 //Print out the statistics in a table.
                 ConsoleTable table = new ConsoleTable("Problem", "Your solution", "Solve time", "Date", "Correct?");
                 foreach (Statistic record in recordsArray)
                 {
                     string boolWord;
-                    if (record.Correctness == true) {
+                    if (record.Correctness == true)
+                    {
                         boolWord = "Yes";
                     }
-                    else {
+                    else
+                    {
                         boolWord = "No";
                     }
 
@@ -586,11 +592,13 @@ namespace Lunariens_Mental_Math_Trainer
                     stopWatch.Reset();
                     OutputProblem(problem, speechSynth);
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    if (mode == Modes.Speech) {
+                    if (mode == Modes.Speech)
+                    {
                         Console.WriteLine("Type \"exit\" to return to the main menu. Enter nothing to repeat the problem");
                     }
-                    else {
-                    Console.WriteLine("Type \"exit\" to return to the main menu.");
+                    else
+                    {
+                        Console.WriteLine("Type \"exit\" to return to the main menu.");
                     }
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("Your result: ");
@@ -746,7 +754,7 @@ namespace Lunariens_Mental_Math_Trainer
                     string[] files = Array.Empty<string>();
                     //check if there are any files, if yes, then list them.
                     if (Directory.Exists("./stats")) files = Directory.GetFiles("stats");
-                    
+
 
                     bool isGotoUsed = false;
                     menuChoice2Start: //label for the goto statement later on.
@@ -765,9 +773,7 @@ namespace Lunariens_Mental_Math_Trainer
 
                         int fileMode;
 
-                        // if the stats are empty, handle it.
 
-                        
                         // retrieve the mode from the file name. This is used in the OpenStatistic method below.
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
@@ -810,6 +816,15 @@ namespace Lunariens_Mental_Math_Trainer
                                     string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(6, 5);
                                     OpenStatisticGraph(statDigitCode, (Modes)fileMode);
                                 }
+                                string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
+                                if (statLines.Length == 1)
+                                {
+                                    GoodConsoleClear();
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("No statistics found inside the selected file.");
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    continue;
+                                }
                             }
                             else
                             {
@@ -823,13 +838,12 @@ namespace Lunariens_Mental_Math_Trainer
                             Console.WriteLine("Invalid choice, try again.");
                         }
                     }
-                    
-                    GoodConsoleClear();
+                    else
+                    {
+                        Console.WriteLine("There are no statistic files. Go calculate!");
+                    }
 
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("No statistics found inside the selected file.");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    continue;
+                    GoodConsoleClear();
                 }
                 else if (usrChoice == "3")
                 {
@@ -939,14 +953,13 @@ namespace Lunariens_Mental_Math_Trainer
                 else if (usrChoice == "9")
                 {
                     Console.WriteLine("Exiting...");
-                    Thread.Sleep(100);
+                    Thread.Sleep(20);
                     Environment.Exit(0);
                 }
                 else
                 {
                     GoodConsoleClear();
                     Console.WriteLine("Invalid choice, try again.");
-                    Thread.Sleep(1000);
                 }
 
             }
