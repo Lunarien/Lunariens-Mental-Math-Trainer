@@ -1,5 +1,5 @@
 # Lunariens-Mental-Math-Trainer
-Mental arithmetic trainer made in C#. Train your mental calculation speed with it!
+Mental math trainer for Windows made in C#. Train your mental calculation speed with it!
 
 # Usage
 ## Prerequisites
@@ -15,7 +15,7 @@ Before running the program, you will have to download a voice package for US Eng
 When you start the program, you will be met with a menu screen with several action options. You can currently do the following:
 * Train with a never-ending problem set
 * View a statistic file (as a graph) from the *stats* folder by selecting it from a list
-* View a statistic file (as a graph) from the *stats* folder by typing out the digit code of the problem stats saved in the file. Note that the name of the file corresponds to the problem statistics saved in it
+* View a statistic file (as a graph) from the *stats* folder by typing out the digit code of the problem stats saved in the file. Note that the name of the file corresponds to the problem statistics saved in it.
 * View a statistic file (through a console menu) from the *stats* folder by selecting it from a list
 * View a statistic file (through a console menu) folder by typing out the digit code of the problem stats saved in the file.
 * Exit LMMT
@@ -27,19 +27,20 @@ When training in speech mode, you can press enter without having any text typed 
 
 
 # Capabilities
-* Text to speech capabilities (!!)
+* Text to speech capabilities (uncommon amongst other trainers)
+* No silence at the end of the text-to-speech audio, making solve times much closer to correct. (unique to LMMT)
 * Timing
 * Statistics
 * Graphing statistics
 
-# Plans
-* Make sure that there is no silence at the end of the generated TTS audio. This silence gives time advantage to the user and can make it so that a problem takes you 0 or so seconds.
+# Planned features
 * Custom averages (like average of 10 problems, of 5, and arithmetic means)
-* bursts of problems (e. g. 10 problems at a time)
-* using multiple problem types in one training session
+* Bursts of problems (e. g. 10 problems at a time)
+* Using multiple problem types in one training session
+* More precise problem definitions
 * Bigger number capabilities
 * Bug fixes
 
 # Limitations
-* The program currently only accepts single numbers for X, Y and Z in the digit code.
-* When entering a wrong answer, you don't get to try again. I might try to implement trying again sometime.
+* The program currently only accepts single-digit numbers for X, Y and Z in the digit code. This basically means that the problems can't have numbers with more than 9 digits.
+* When entering a wrong answer in text mode, you don't get to try again. Retrying will likely be implemented for both modes in the future.
