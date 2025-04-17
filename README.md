@@ -5,7 +5,7 @@ Mental math trainer for Windows made in C#. You can train your mental calculatio
 
 <details>
 
-<summary>Prerequisites for using to program</summary>
+<summary>Prerequisites for using the program</summary>
 
 ## Prerequisites
 Before running the program, you will have to download a voice package for US English. To do this, follow these steps:
@@ -18,6 +18,7 @@ Before running the program, you will have to download a voice package for US Eng
 ![Search US English](/README%20images/search%20for%20english.png)
 
 </details>
+
 ## In the program
 When you start the program, you will be met with a menu screen with several action options. You can currently do the following:
 * Train with a never-ending problem set
