@@ -49,7 +49,7 @@ namespace Lunariens_Mental_Math_Trainer
             { "8", "eighth root of " },
             { "9", "ninth root of " }
         };
-        
+
         public static DigitCode[] ParseDigitCodes(string? input)
         {
             if (input == null)
@@ -129,11 +129,10 @@ namespace Lunariens_Mental_Math_Trainer
 
         public class DigitCode(int digitsX = -1, int digitsY = -1, char operation = '\0', int decimals = 0)
         {
-            //variables that store digit amounts of X and Y, the operation and optionally the decimal digits
             public int DigitsX = digitsX;
             public int DigitsY = digitsY;
             public char Operation = operation;
-            public int Decimals = decimals;
+            public int Decimals = decimals; //optional
 
             public DigitCode[]? Get()
             {
@@ -190,8 +189,8 @@ namespace Lunariens_Mental_Math_Trainer
                         // Extract groups
                         return ParseDigitCodes(usrDigitCodeInput);
 
-                        // this giant commented section of code might still be used in the future. if it is not used for three releases in a row, delete it.
-                        // Last used in the making of release FILL_THIS_IN
+                        // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
+                        // Last used in the making of release 0.3.0
 
                         // string firstNumber = digitCodeMatch[0].Groups[1].Value; // First number
                         // string operatorSymbol = digitCodeMatch[0].Groups[2].Value; // Operator
@@ -796,14 +795,14 @@ namespace Lunariens_Mental_Math_Trainer
                     }
 
                     // truncate the result down to the number of decimals specified in the digit code, so that extra decimals don't cause the answer to be marked wrong
-                    
-                        int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals + 1;
 
-                        if (usrResult.Length > decimalIndex && usrResult.Contains('.'))
-                        {
-                            usrResult = usrResult.Substring(0, decimalIndex + digitCodes[dcChoice].Decimals);
-                        }
-                    
+                    int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals + 1;
+
+                    if (usrResult.Length > decimalIndex && usrResult.Contains('.'))
+                    {
+                        usrResult = usrResult.Substring(0, decimalIndex + digitCodes[dcChoice].Decimals);
+                    }
+
 
                     // start verifying the answer, checking whether it's a number or the exit command
                     if (usrResult.ToLower() == "exit") //check for the exit command first to avoid issues.
@@ -954,11 +953,11 @@ namespace Lunariens_Mental_Math_Trainer
 
                     OpenTrainingScreen(sw, ifp, usrDCs, synth, problemCount);
                 }
-                else if (usrChoice == "2")
+                else if (usrChoice == "2") //view stats from a list
                 {
                     GoodConsoleClear();
                     string[] files = Array.Empty<string>();
-                    //check if there are any files. if yes, then list them.
+                    //check if there are any files. list them if so.
                     if (Directory.Exists("../stats"))
                     {
                         files = Directory.GetFiles("../stats");
@@ -971,74 +970,85 @@ namespace Lunariens_Mental_Math_Trainer
                         continue;
                     }
 
-                    bool isGotoUsed = false;
-                menuChoice2Start: //label for the goto statement later on.
-                    if (files.Length != 0)
+                    bool inOption2 = true;
+                    while (inOption2)
                     {
-                        GoodConsoleClear();
-                        Console.WriteLine("Existing statistics:");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        for (int i = 0; i < files.Length; i++)
-                        {
-                            Console.WriteLine($"{i + 1}) {files[i][9..]}");
-                        }
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write("Statistic to open: ");
-                        string usrFileChoice = Console.ReadLine();
-
-                        int fileMode;
-
-
-                        // retrieve the mode from the file name. This is used in the OpenStatistic method below.
-                        if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
-                        {
-                            if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9) //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
-                                fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][4].ToString());
-
-                            else fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][6].ToString());
-
-                        }
-                        else if (usrFileChoice == "exit")
+                        if (files.Length != 0)
                         {
                             GoodConsoleClear();
-                            continue;
-                        }
-                        else
-                        {
-                            GoodConsoleClear();
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Invalid choice, try again.");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            if (!isGotoUsed)
+                            Console.WriteLine("Existing statistics:");
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            for (int i = 0; i < files.Length; i++)
                             {
-                                isGotoUsed = true;
-                                goto menuChoice2Start;
+                                Console.WriteLine($"{i + 1}) {files[i][9..]}");
                             }
-                            goto menuChoice2Start;
-                        }
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.Write("Statistic to open: ");
+                            string usrFileChoice = Console.ReadLine();
 
-                        if (int.TryParse(usrFileChoice, out int _))
-                        {
-                            if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
+                            int fileMode = -1;
+
+
+                            // retrieve the mode from the file name. This is used in the OpenStatistic method below.
+                            if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                             {
                                 if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
-                                {
-                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
-                                    OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                {  //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
+                                    fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][4].ToString());
                                 }
                                 else
                                 {
-                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
-                                    OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                    fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][6].ToString());
                                 }
-                                string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
-                                if (statLines.Length == 1)
+
+                            }
+                            else if (usrFileChoice == "exit")
+                            {
+                                GoodConsoleClear();
+                                break;
+                            }
+                            else
+                            {
+                                GoodConsoleClear();
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid choice, try again.");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                if (inOption2)
+                                {
+                                    inOption2 = false;
+                                    continue;
+                                }
+                                inOption2 = true;
+                            }
+
+                            if (int.TryParse(usrFileChoice, out int _))
+                            {
+                                if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
+                                {
+                                    if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
+                                    {
+                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
+                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                    }
+                                    else
+                                    {
+                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
+                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                    }
+                                    string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
+                                    if (statLines.Length == 1)
+                                    {
+                                        GoodConsoleClear();
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("No statistics found inside the selected file.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        continue;
+                                    }
+                                }
+                                else
                                 {
                                     GoodConsoleClear();
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine("No statistics found inside the selected file.");
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                    continue;
+                                    Console.WriteLine("Invalid choice, try again.");
                                 }
                             }
                             else
@@ -1049,19 +1059,28 @@ namespace Lunariens_Mental_Math_Trainer
                         }
                         else
                         {
-                            GoodConsoleClear();
-                            Console.WriteLine("Invalid choice, try again.");
+                            Console.WriteLine("There are no statistic files. Go calculate!");
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine("There are no statistic files. Go calculate!");
-                    }
 
-                    GoodConsoleClear();
+                        GoodConsoleClear();
+                    }
                 }
                 else if (usrChoice == "3")
                 {
+                    string[] files = Array.Empty<string>();
+                    if (Directory.Exists("../stats"))
+                    {
+                        files = Directory.GetFiles("../stats");
+                    }
+                    else
+                    {
+                        GoodConsoleClear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("No statistics folder was detected! Go calculate or copy your previous one.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        continue;
+                    }
+
                     GoodConsoleClear();
                     Modes selectedMode = GetMode();
                     if (selectedMode == Exit) //if user wants to exit back to menu
@@ -1093,6 +1112,7 @@ namespace Lunariens_Mental_Math_Trainer
                         Console.ForegroundColor = ConsoleColor.White;
                         continue;
                     }
+
                     if (files.Length != 0)
                     {
                         GoodConsoleClear();
@@ -1163,6 +1183,20 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else if (usrChoice == "5") // view console statistics for specific digit code
                 {
+                    string[] files = Array.Empty<string>();
+                    if (Directory.Exists("../stats"))
+                    {
+                        files = Directory.GetFiles("../stats");
+                    }
+                    else
+                    {
+                        GoodConsoleClear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("No statistics folder was detected! Go calculate or copy your previous one.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        continue;
+                    }
+                    
                     GoodConsoleClear();
                     Modes selectedMode = GetMode();
                     if (selectedMode == Exit) //if user wants to exit
