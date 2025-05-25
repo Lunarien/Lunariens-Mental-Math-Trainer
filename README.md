@@ -21,7 +21,7 @@ Before running the program, you will have to download a voice package for US Eng
 
 ## In the program
 When you start the program, you will be met with a menu screen with several action options. You can currently do the following:
-* Train with a never-ending problem set
+* Train with a (never-ending) problem set
 * View a statistic file (as a graph) from the *stats* folder by selecting it from a list
 * View a statistic file (as a graph) from the *stats* folder by typing out the digit code of the problem stats saved in the file. Note that the name of the file corresponds to the problem statistics saved in it.
 * View a statistic file (through a console menu) from the *stats* folder by selecting it from a list
@@ -38,15 +38,16 @@ When training in speech mode, you can press enter without having any text typed 
 * Text to speech capabilities (uncommon amongst other trainers)
 * No silence at the end of the text-to-speech audio, making solve times much closer to correct. (unique to LMMT)
 * Timing
+* Bursts of problems (e. g. 10 problems at a time)
+* Using multiple problem types in one training session
 * Statistics
 * Graphing statistics
 
 # Planned features
-* Custom averages (like average of 10 problems, of 5, and arithmetic means)
-* Bursts of problems (e. g. 10 problems at a time)
-* Using multiple problem types in one training session
+* (Custom) averages (like average of 10 problems, of 5, and arithmetic means)
 * More precise problem definitions (i. e. you'd tell the program something along the lines of "give me problems of this type: {number 20 to 35} to the power of {2 to 3}")
 * Bigger number capabilities
+* A settings menu
 * Bug fixes
 
 # Limitations
