@@ -1196,7 +1196,7 @@ namespace Lunariens_Mental_Math_Trainer
                         Console.ForegroundColor = ConsoleColor.White;
                         continue;
                     }
-                    
+
                     GoodConsoleClear();
                     Modes selectedMode = GetMode();
                     if (selectedMode == Exit) //if user wants to exit
