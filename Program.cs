@@ -617,7 +617,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 table.Write();
             }
-            Console.Write("Press any key to go back to main menu...");
+            Console.Write("Press any key to go back to the main menu...");
             Console.ReadKey();
 
             GoodConsoleClear();
@@ -684,6 +684,9 @@ namespace Lunariens_Mental_Math_Trainer
             GoodConsoleClear();
 
             SessionConfiguration.problemCount = problemCount;
+            if (problemCount == 0)
+                return;
+
             Random random = new(); // use for picking the digit code (from multiple) to decide the type of the generated problem
 
             bool training = true;
@@ -895,7 +898,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
             }
         }
-
+        
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
