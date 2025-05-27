@@ -34,7 +34,7 @@ When training in speech mode, you can press enter without having any text typed 
 
 
 
-# Special Capabilities
+# Capabilities
 * Text to speech capabilities (uncommon amongst other trainers)
 * No silence at the end of the text-to-speech audio, making solve times much closer to correct. (unique to LMMT)
 * Timing

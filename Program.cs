@@ -296,8 +296,8 @@ namespace Lunariens_Mental_Math_Trainer
 
 
         public static void GoodConsoleClear()
-        {
-            Console.Clear(); // Clearing the console doesn't work well in case of Windows Terminal. This abomination is a workaround for that.
+        {   // Clearing the console doesn't work well in case of Windows Terminal. This abomination is a workaround for that.
+            Console.Clear(); 
             Console.WriteLine("\f\u001bc\x1b[3J");
             Console.Clear();
         }
@@ -1225,7 +1225,6 @@ namespace Lunariens_Mental_Math_Trainer
                     GoodConsoleClear();
                     Console.WriteLine("Invalid choice, try again.");
                 }
-
             }
         }
     }
