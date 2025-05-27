@@ -12,7 +12,6 @@ using static Lunariens_Mental_Math_Trainer.Modes;
 using System.Security;
 using NAudio.Wave;
 using System.Media;
-using System.Numerics;
 using CsvHelper.Configuration.Attributes;
 using ScottPlot.Plottable;
 using System.Data.Common;
@@ -297,7 +296,7 @@ namespace Lunariens_Mental_Math_Trainer
 
         public static void GoodConsoleClear()
         {   // Clearing the console doesn't work well in case of Windows Terminal. This abomination is a workaround for that.
-            Console.Clear(); 
+            Console.Clear();
             Console.WriteLine("\f\u001bc\x1b[3J");
             Console.Clear();
         }
@@ -733,18 +732,8 @@ namespace Lunariens_Mental_Math_Trainer
                         intResult = x + y;
                         break;
                     case '-':
-                        if (digitCodes[dcChoice].DigitsX == digitCodes[dcChoice].DigitsY)
-                        {
-                            if (x < y)
-                                intResult = y - x;
-                            else
-                                intResult = x - y;
-                            break;
-                        }
                         intResult = x - y;
                         break;
-
-
                     case '*':
                         intResult = x * y;
                         break;
@@ -898,7 +887,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
             }
         }
-        
+
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
