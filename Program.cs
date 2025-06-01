@@ -878,6 +878,11 @@ namespace Lunariens_Mental_Math_Trainer
                         GoodConsoleClear();
                         continue;
                     }
+                    else if (usrResult == "")
+                    {
+                        GoodConsoleClear();
+                        continue;
+                    }
                     else if (decResult != null || intResult != null) // works like an else block, since at all times, at least one of the results has a value.
                     { //so why is this here?....
                         GoodConsoleClear();

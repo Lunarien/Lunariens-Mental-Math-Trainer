@@ -47,6 +47,7 @@ When training in speech mode, you can press enter without having any text typed 
 * (Custom) averages (like average of 10 problems, of 5, and arithmetic means)
 * More precise problem definitions (i. e. you'd tell the program something along the lines of "give me problems of this type: {number 20 to 35} to the power of {2 to 3}")
 * Bigger number capabilities
+* Chain calculation mode (LMMT outputs a problem consisting of several (3+) numbers. User types the result of this longer problem.)
 * A settings menu
 * Bug fixes
 
