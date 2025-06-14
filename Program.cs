@@ -2,19 +2,15 @@
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Speech.Synthesis;
-using System;
-using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
 using ScottPlot;
 using ConsoleTables;
 using static Lunariens_Mental_Math_Trainer.Modes;
-using System.Security;
 using NAudio.Wave;
 using System.Media;
-using CsvHelper.Configuration.Attributes;
-using ScottPlot.Plottable;
-using System.Data.Common;
+using Lunariens_Mental_Math_Trainer;
+using Microsoft.VisualBasic.Logging;
 
 
 namespace Lunariens_Mental_Math_Trainer
@@ -34,7 +30,7 @@ namespace Lunariens_Mental_Math_Trainer
         Text = 0,
         Speech = 1
     }
-    internal class Program
+    public class Program
     {
         public static Modes mode;
 
@@ -70,31 +66,19 @@ namespace Lunariens_Mental_Math_Trainer
             return digitCodes.ToArray();
         }
 
-        public static string? GetDCStr()
+        public static string? GetDC()
         {
-            string pattern = @"^\s*(?:(?:\d(?:R|\/)\d\.\d|\d(?:\+|\-|\*|\^)\d(?:\.\d)?)\s*)+(?:\d+)?\s*$"; //regex pattern to match multiple digit codes with an optional number (problem count) at the end. it also ensures a .Z written after a / or R operation.
-            Regex dcRegex = new(pattern);
-
             Console.WriteLine("Enter digit code(s) and (optionally) the amount of problems. Enter \"help\" to get more info.");
 
             while (true)
             {
                 Console.Write("Digit code(s): ");
                 string usrDigitCodeInput = Console.ReadLine();
-                if (dcRegex.IsMatch(usrDigitCodeInput))
-                {
-                    return usrDigitCodeInput;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid digit code format.");
-                }
 
                 if (usrDigitCodeInput == "exit")
                 {
                     return null;
                 }
-
                 else if (usrDigitCodeInput == "help")
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -123,129 +107,12 @@ namespace Lunariens_Mental_Math_Trainer
                     Console.WriteLine("5^2 100");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
-            }
-        }
-
-        public class DigitCode(int digitsX = -1, int digitsY = -1, char operation = '\0', int decimals = 0)
-        {
-            public int DigitsX = digitsX;
-            public int DigitsY = digitsY;
-            public char Operation = operation;
-            public int Decimals = decimals; //optional
-
-            public DigitCode[]? Get()
-            {
-                string dcPattern = @"(\d)(\+|\-|\*|\/|R|\^)(\d)(?:\.(\d+))?"; //regex pattern to match digit codes
-                string problemCountPattern = @" \d+\s*$";
-                Regex dcRegex = new(dcPattern);
-                Regex problemCountRegex = new(problemCountPattern);
-
-                Console.WriteLine("Enter a digit code and (optionally) the amount of problems. Enter \"help\" to get more info.");
-
-                while (true)
+                else
                 {
-                    Console.Write("Digit code: ");
-                    string usrDigitCodeInput = Console.ReadLine();
-
-                    if (usrDigitCodeInput == "exit")
-                    {
-                        DigitsX = -1;
-                        DigitsY = -1;
-                        Operation = '\0';
-                        return null;
-                    }
-                    MatchCollection digitCodeMatch = dcRegex.Matches(usrDigitCodeInput);
-                    Match problemCountMatch = problemCountRegex.Match(usrDigitCodeInput);
-
-                    if (usrDigitCodeInput == "help")
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("A digit code defines the type of the problem and has the following format:");
-                        Console.WriteLine("XopY.Z");
-                        Console.WriteLine("X and Y represent the number of digits for the first and second (random) number, respectively.");
-                        Console.WriteLine("op means operation, and can be one of the following: + - * / ^ R");
-                        Console.WriteLine("the ^ operator makes Y, the second number, represent the actual typed number.\nThis has to be a whole number.");
-                        Console.WriteLine("So if it was 2, then it is 2 and not a random 2 digit number.");
-                        Console.WriteLine("The R operator means root, and makes X represent the base of the root.");
-                        Console.WriteLine("So if X was 3, then the operation is a cube root.");
-                        Console.WriteLine("The last two symbols are required for / and R operations.");
-                        Console.WriteLine("They represent the amount of decimal digits needed in the result.");
-                        Console.WriteLine("The dot is required when specifying the amount of decimal digits. Z is the amount of decimals.");
-                        Console.WriteLine();
-                        Console.WriteLine("By default, you get an infinite supply of problems.");
-                        Console.WriteLine("You can set a specific amount of problems by typing a number after the digit code, preceded by a space.");
-
-                        Console.WriteLine();
-                        Console.WriteLine("Example digit code inputs:");
-                        Console.WriteLine("3+3 10");
-                        Console.WriteLine("5/2.2 5");
-                        Console.WriteLine("2R3.4");
-                        Console.WriteLine("5^2 100");
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
-                    else if (digitCodeMatch.Count > 0)
-                    {
-                        // Extract groups
-                        return ParseDigitCodes(usrDigitCodeInput);
-
-                        // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
-                        // Last used in the making of release 0.3.0
-
-                        // string firstNumber = digitCodeMatch[0].Groups[1].Value; // First number
-                        // string operatorSymbol = digitCodeMatch[0].Groups[2].Value; // Operator
-                        // string secondNumber = digitCodeMatch[0].Groups[3].Value; // Second number
-                        // string? decimalPart = digitCodeMatch[0].Groups[4].Success ? digitCodeMatch[0].Groups[4].Value : null; // Decimal part (optional)
-
-                        // SessionConfiguration.problemCount = problemCountMatch.Length == 0 ? null : int.Parse(problemCountMatch.ToString());
-
-                        // if ("R^".Contains(operatorSymbol))
-                        // {
-                        //     DigitsX = int.Parse(firstNumber);
-                        //     Operation = operatorSymbol[0];
-                        //     DigitsY = int.Parse(secondNumber);
-                        //     if ((operatorSymbol == "R" || operatorSymbol == "^") && decimalPart != null)
-                        //     {
-                        //         Decimals = int.Parse(decimalPart);
-
-                        //     }
-                        //     else
-                        //     {
-                        //         Console.WriteLine("Invalid digit code format.");
-                        //     }
-                        // }
-                        // else if (operatorSymbol == "/")
-                        // {
-                        //     DigitsX = int.Parse(firstNumber);
-                        //     Operation = operatorSymbol[0];
-                        //     DigitsY = int.Parse(secondNumber);
-                        //     if (decimalPart != null)
-                        //     {
-                        //         Decimals = int.Parse(decimalPart);
-                        //         // return new DigitCode(digitsX, digitsY, Operation);
-                        //     }
-                        //     else
-                        //     {
-                        //         Console.WriteLine("Invalid digit code format.");
-                        //     }
-                        // }
-
-                        // DigitsX = int.Parse(firstNumber);
-                        // Operation = operatorSymbol[0];
-                        // DigitsY = int.Parse(secondNumber);
-                        // Decimals = digitCodeMatch[0].Groups[4].Success ? int.Parse(decimalPart) : 0;
-                        // // return new DigitCode(digitsX, digitsY, Operation);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid digit code format. (Did you forget a decimal point? Did you type a two digit number somewhere?)");
-                    }
-
+                    return usrDigitCodeInput;
                 }
             }
-            public override string ToString() => Decimals == 0 ? $"{DigitsX}{Operation}{DigitsY}" : $"{DigitsX}{Operation}{DigitsY}.{Decimals}";
         }
-
-
 
         /// <summary>
         /// Trims the end of an audio file if its volume is under a specified threshold.
@@ -370,6 +237,17 @@ namespace Lunariens_Mental_Math_Trainer
             for (int i = 0; i < number.Length; i++)
             {
                 result += sups[int.Parse(number[i].ToString())].ToString(); // this monstrosity appends the superscript of the given number to the string result.
+            }
+            return result;
+        }
+
+        public static string ToSuperScript(int number)
+        {
+            string sups = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+            string result = "";
+            for (int i = 0; i < number.ToString().Length; i++)
+            {
+                result += sups[int.Parse(number.ToString()[i].ToString())].ToString(); // this monstrosity appends the superscript of the given number to the string result.
             }
             return result;
         }
@@ -693,19 +571,43 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 int dcChoice = random.Next(0, digitCodes.Length);
                 // make random numbers corresponding to the number of digits in the digit code
-                long xRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX - 1), 0)); //the bottom of the range for X. it is 10^(DigitsX - 1).
-                long xRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX), 0)); //the top of the range for X. it is 10^DigitsX
-                long x = Math.Abs(RandomLong(xRangeBottom, xRangeTop));
+                long xRangeBottom;
+                long xRangeTop;
+                long x;
+                long yRangeBottom;
+                long yRangeTop;
+                long y;
+                if (digitCodes[dcChoice].DigitsX < 1) // {b..t} number format (b = bottom; t = top)
+                {
+                    xRangeBottom = Convert.ToInt64(digitCodes[dcChoice].LowerBoundX);
+                    xRangeTop = Convert.ToInt64(digitCodes[dcChoice].UpperBoundX);
+                    x = Math.Abs(RandomLong(xRangeBottom, xRangeTop + 1));
+                }
+                else
+                {
+                    xRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX - 1), 0)); //the bottom of the range for X. it is 10^(DigitsX - 1).
+                    xRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX), 0)); //the top of the range for X. it is 10^DigitsX
+                    x = Math.Abs(RandomLong(xRangeBottom, xRangeTop));
+                }
 
-                long yRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY - 1), 0));
-                long yRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY), 0));
-                long y = Math.Abs(RandomLong(yRangeBottom, yRangeTop));
+                if (digitCodes[dcChoice].DigitsY <= 0) // {b..t} number format (b = bottom; t = top)
+                {
+                    yRangeBottom = Convert.ToInt64(digitCodes[dcChoice].LowerBoundY);
+                    yRangeTop = Convert.ToInt64(digitCodes[dcChoice].UpperBoundY);
+                    y = Math.Abs(RandomLong(yRangeBottom, yRangeTop + 1));
+                }
+                else
+                {
+                    yRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY - 1), 0));
+                    yRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY), 0));
+                    y = Math.Abs(RandomLong(yRangeBottom, yRangeTop));
+                }
 
                 // make a problem string with the random numbers and the operation
                 string problem;
                 if (digitCodes[dcChoice].Operation == '^')
                 {
-                    problem = x.ToString() + digitCodes[dcChoice].Operation + digitCodes[dcChoice].DigitsY;
+                    problem = x.ToString() + "^" + y.ToString();
                 }
                 else if (digitCodes[dcChoice].Operation == 'R')
                 {
@@ -741,7 +643,7 @@ namespace Lunariens_Mental_Math_Trainer
                         decResult = Math.Round(Convert.ToDecimal(x) / Convert.ToDecimal(y), digitCodes[dcChoice].Decimals, MidpointRounding.ToZero);
                         break;
                     case '^':
-                        intResult = (long)Math.Pow(x, digitCodes[dcChoice].DigitsY);
+                        intResult = (long)Math.Pow(x, y);
                         break;
                     case 'R':
                         decResult = Math.Round((decimal)Math.Pow(Convert.ToDouble(y), 1 / Convert.ToDouble(digitCodes[dcChoice].DigitsX)), digitCodes[dcChoice].Decimals, MidpointRounding.ToZero);
@@ -931,24 +833,47 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     GoodConsoleClear();
 
-                    string? dcStr = GetDCStr();
-                    DigitCode[] usrDCs = ParseDigitCodes(dcStr);
-                    Regex problemCountRegex = new(@" \d+\s*$");
-
-                    if (usrDCs[0].DigitsX == -1 && usrDCs[0].DigitsY == -1 && usrDCs[0].Operation == '\0') //if user wants to exit
+                    DigitCode[] usrDCs = [];
+                    bool gettingInput = true;
+                    string? usrSessionDefinition = null;
+                    while (gettingInput)
+                    {
+                        usrSessionDefinition = GetDC();
+                        if (usrSessionDefinition != null)
+                        {
+                            try
+                            {
+                                Parser parser = new(usrSessionDefinition);
+                                usrDCs = parser.Parse(out SessionConfiguration.problemCount);
+                                gettingInput = false;
+                            }
+                            catch (FormatException e)
+                            {
+                                GoodConsoleClear();
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.WriteLine(e.Message);
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                        }
+                        else
+                        {
+                            gettingInput = false;
+                        }
+                    }
+                    if (usrSessionDefinition == null)
                     {
                         GoodConsoleClear();
                         continue;
                     }
+
+
                     foreach (DigitCode dc in usrDCs)
                     {
                         InitStatistic(dc.ToString(), mode);
                     }
-                    int? problemCount = null;
-                    if (problemCountRegex.IsMatch(dcStr))
-                        problemCount = int.Parse(problemCountRegex.Match(dcStr).ToString());
 
-                    OpenTrainingScreen(sw, ifp, usrDCs, synth, problemCount);
+
+                    OpenTrainingScreen(sw, ifp, usrDCs, synth, SessionConfiguration.problemCount);
                 }
                 else if (usrChoice == "2") //view stats from a list
                 {
@@ -1087,7 +1012,8 @@ namespace Lunariens_Mental_Math_Trainer
                     }
 
                     GoodConsoleClear();
-                    DigitCode[] usrDC = ParseDigitCodes(GetDCStr());
+                    DigitCode usrDC = new();
+                    usrDC.Get();
 
                     OpenStatisticGraph(usrDC.ToString(), selectedMode);
                     GoodConsoleClear();
