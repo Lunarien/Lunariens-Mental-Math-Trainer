@@ -21,7 +21,7 @@ Before running the program, you will have to download a voice package for US Eng
 
 ## In the program
 When you start the program, you will be met with a menu screen with several action options. You can currently do the following:
-* Train with a (never-ending) problem set
+* Train with a custom problem set
 * View a statistic file (as a graph) from the *stats* folder by selecting it from a list
 * View a statistic file (as a graph) from the *stats* folder by typing out the digit code of the problem stats saved in the file. Note that the name of the file corresponds to the problem statistics saved in it.
 * View a statistic file (through a console menu) from the *stats* folder by selecting it from a list
