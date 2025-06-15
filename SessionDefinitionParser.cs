@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using ConsoleTables;
+using PeterO.Numbers;
 
 namespace Lunariens_Mental_Math_Trainer
 {
@@ -29,7 +30,7 @@ namespace Lunariens_Mental_Math_Trainer
         {
             if (input == null)
                 return [new DigitCode(-1, -1, '\0')];
-            string dcPattern = @"(\d+)(\+|\-|\*|\/|R|\^)(\d+)(?:\.(\d+))?";
+            string dcPattern = @"([1-9]\d*)(\+|\-|\*|\/|R|\^)(\d+)(?:\.([1-9]\d*))?";
             Regex dcRegex = new(dcPattern);
 
             MatchCollection matches = dcRegex.Matches(input);
@@ -48,18 +49,18 @@ namespace Lunariens_Mental_Math_Trainer
     }
     public class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
     {
-        public int DigitsX = digitsX;
-        public int DigitsY = digitsY;
-        public int? LowerBoundX = lowerBoundX;
-        public int? UpperBoundX = upperBoundX;
-        public int? LowerBoundY = lowerBoundY;
-        public int? UpperBoundY = upperBoundY;
+        public EInteger DigitsX = digitsX;
+        public EInteger DigitsY = digitsY;
+        public EInteger? LowerBoundX = lowerBoundX;
+        public EInteger? UpperBoundX = upperBoundX;
+        public EInteger? LowerBoundY = lowerBoundY;
+        public EInteger? UpperBoundY = upperBoundY;
         public char Operation = operation;
-        public int Decimals = decimals; //optional
+        public EInteger Decimals = decimals; //optional
 
         public DigitCode[]? Get()
         {
-            string dcPattern = @"(\d)(\+|\-|\*|\/|R|\^)(\d)(?:\.(\d+))?"; //regex pattern to match digit codes
+            string dcPattern = @"([1-9]\d*)(\+|\-|\*|\/|R|\^)([1-9]\d*)(?:\.([1-9]\d*))?"; //regex pattern to match digit codes
             string problemCountPattern = @" \d+\s*$";
             Regex dcRegex = new(dcPattern);
             Regex problemCountRegex = new(problemCountPattern);
@@ -172,25 +173,25 @@ namespace Lunariens_Mental_Math_Trainer
         {
             string boundsX;
             string boundsY;
-            if (DigitsX == -1)
+            if (DigitsX == EInteger.FromInt32(-1))
             {
-                boundsX = $"{LowerBoundX}..{UpperBoundX}";
+                boundsX = $"{{{LowerBoundX}..{UpperBoundX}}}";
             }
             else
             {
                 boundsX = DigitsX.ToString();
             }
 
-            if (DigitsY == -1)
+            if (DigitsY == EInteger.FromInt32(-1))
             {
-                boundsY = $"{LowerBoundY}..{UpperBoundY}";
+                boundsY = $"{{{LowerBoundY}..{UpperBoundY}}}";
             }
             else
             {
                 boundsY = DigitsY.ToString();
             }
 
-            if (Decimals == 0)
+            if (Decimals == EInteger.FromInt32(0))
             {
                 return $"{boundsX}{Operation}{boundsY}";
             }
@@ -224,8 +225,8 @@ namespace Lunariens_Mental_Math_Trainer
             char operation = '\0';
             int decimals = 0;
 
-            Regex baseRegex = new(@"(.*)([\+\-\*\^])(.*?)$");
-            Regex baseRegexDecimals = new(@"(.*)([\/R])(.*?)\.(\d+)$");
+            Regex baseRegex = new(@"(.*)([\+\-\*\^])(.*?)$"); //no decimal operations
+            Regex baseRegexDecimals = new(@"(.*)([\/R])(.*?)\.(\d+)$"); //operations requiring decimals
             Match match;
             if (baseRegex.IsMatch(digitCode))
             {
@@ -237,14 +238,14 @@ namespace Lunariens_Mental_Math_Trainer
             }
             else
             {
-                throw new FormatException("No valid digit code found!");
+                throw new FormatException("No valid digit code found! (Did you forget a decimal point?)");
             }
 
 
 
             GroupCollection groups = match.Groups;
             Group[] groupArray = groups.Cast<Group>().ToArray();
-            Regex rangeRegex = new(@"\{(\d+)\.\.(\d+)\}");
+            Regex rangeRegex = new(@"\{([1-9]\d*)\.\.([1-9]\d*)\}");
             for (int i = 1; i < groupArray.Length; i++)
             {
 

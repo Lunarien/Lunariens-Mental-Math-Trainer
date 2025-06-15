@@ -13,6 +13,7 @@
     <PackageReference Include="ConsoleTables" Version="2.5.0" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="PeterO.Numbers" Version="1.8.2" />
     <PackageReference Include="ScottPlot" Version="4.1.63" />
     <PackageReference Include="ScottPlot.WinForms" Version="4.1.63" />
     <PackageReference Include="System.Speech" Version="7.0.0" />

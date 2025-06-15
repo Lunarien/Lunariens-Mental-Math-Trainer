@@ -9,8 +9,8 @@ using ConsoleTables;
 using static Lunariens_Mental_Math_Trainer.Modes;
 using NAudio.Wave;
 using System.Media;
-using Lunariens_Mental_Math_Trainer;
-using Microsoft.VisualBasic.Logging;
+using PeterO.Numbers;
+using NAudio.Wave.SampleProviders;
 
 
 namespace Lunariens_Mental_Math_Trainer
@@ -98,13 +98,18 @@ namespace Lunariens_Mental_Math_Trainer
                     Console.WriteLine("You can set a specific amount of problems by typing a number at the end of the session definition, preceded by a space.");
                     Console.WriteLine();
                     Console.WriteLine("You can also enter multiple digit codes to train with multiple problem types.");
-                    Console.WriteLine("They should be separated by a space in between.");
+                    Console.WriteLine("They should be separated by a space in between each one.");
+                    Console.WriteLine();
+                    Console.WriteLine("Instead of the digit amount, you may enter a curly brace-delimited precise number range of the following format:");
+                    Console.WriteLine("{b..t}");
+                    Console.WriteLine("\"b\" means bottom, and \"t\" means top, corresponding to the bottom- and top-most number in the range.");
                     Console.WriteLine();
                     Console.WriteLine("Example digit code inputs:");
                     Console.WriteLine("3+3 10");
                     Console.WriteLine("5/2.2 5");
                     Console.WriteLine("2R3.4");
-                    Console.WriteLine("5^2 100");
+                    Console.WriteLine("{11..35}^2 100");
+
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
@@ -219,15 +224,19 @@ namespace Lunariens_Mental_Math_Trainer
         }
 
 
-        public static long RandomLong(long bottom, long top)
+        public static EInteger RandomEInt(EInteger bottom, EInteger top)
         {
             Random randomness = new();
-            ulong rangeSize = (ulong)(top - bottom);
+            EInteger rangeSize = top - bottom;
 
-            byte[] buf = new byte[8];
+            EContext ctx = new(1000, ERounding.HalfDown, -10000, 10000, false);
+            EFloat rangeLog2 = EFloat.FromEInteger(rangeSize).Log(ctx).Divide(EFloat.FromInt32(2).Log(ctx), ctx);
+            EInteger byteCount = rangeLog2.RoundToPrecision(ctx).ToEInteger();
+            byte[] buf = new byte[byteCount.ToInt32Unchecked() + 5];
+
             randomness.NextBytes(buf);
-            ulong result = (BitConverter.ToUInt64(buf, 0) % rangeSize) + (ulong)bottom;
-            return (long)result;
+            EInteger result = (EInteger.FromBytes(buf, 0, buf.Length, false).Abs() % rangeSize) + bottom;
+            return result;
         }
 
         public static string ToSuperScript(string number)
@@ -236,7 +245,7 @@ namespace Lunariens_Mental_Math_Trainer
             string result = "";
             for (int i = 0; i < number.Length; i++)
             {
-                result += sups[int.Parse(number[i].ToString())].ToString(); // this monstrosity appends the superscript of the given number to the string result.
+                result += sups[int.Parse(number[i].ToString())].ToString(); // this appends the superscript of the given number to the string result.
             }
             return result;
         }
@@ -289,7 +298,7 @@ namespace Lunariens_Mental_Math_Trainer
                 synth.SetOutputToWaveFile("speech.wav");
                 SoundPlayer player = new(@"speech-cut.wav");
 
-                char op = char.Parse(Regex.Replace(problem, @"[\d\n]", string.Empty));
+                char op = char.Parse(Regex.Replace(problem, @"[⁰¹²³⁴⁵⁶⁷⁸⁹\d\n]", string.Empty));
 
                 problem = Regex.Replace(problem, @"[*^/+\-]", " "); //put a space between numbers instead of the operator
                 problem = Regex.Replace(problem, @"√", "");
@@ -559,6 +568,7 @@ namespace Lunariens_Mental_Math_Trainer
         public static void OpenTrainingScreen(Stopwatch stopWatch, IFormatProvider ifp, DigitCode[] digitCodes, SpeechSynthesizer speechSynth, int? problemCount = null)
         {
             GoodConsoleClear();
+            EContext ctx;
 
             SessionConfiguration.problemCount = problemCount;
             if (problemCount == 0)
@@ -570,37 +580,48 @@ namespace Lunariens_Mental_Math_Trainer
             while (training)
             {
                 int dcChoice = random.Next(0, digitCodes.Length);
+
+                ctx = new(digitCodes[dcChoice].Decimals, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
                 // make random numbers corresponding to the number of digits in the digit code
-                long xRangeBottom;
-                long xRangeTop;
-                long x;
-                long yRangeBottom;
-                long yRangeTop;
-                long y;
+                EInteger xRangeBottom;
+                EInteger xRangeTop;
+                EInteger x;
+                EInteger yRangeBottom;
+                EInteger yRangeTop;
+                EInteger y;
+                EInteger ten = 10; // helper
                 if (digitCodes[dcChoice].DigitsX < 1) // {b..t} number format (b = bottom; t = top)
                 {
-                    xRangeBottom = Convert.ToInt64(digitCodes[dcChoice].LowerBoundX);
-                    xRangeTop = Convert.ToInt64(digitCodes[dcChoice].UpperBoundX);
-                    x = Math.Abs(RandomLong(xRangeBottom, xRangeTop + 1));
+                    xRangeBottom = digitCodes[dcChoice].LowerBoundX;
+                    xRangeTop = digitCodes[dcChoice].UpperBoundX;
+                    x = RandomEInt(xRangeBottom, xRangeTop + 1);
+                }
+                else if (digitCodes[dcChoice].Operation == 'R')
+                {
+                    x = digitCodes[dcChoice].DigitsX;
                 }
                 else
                 {
-                    xRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX - 1), 0)); //the bottom of the range for X. it is 10^(DigitsX - 1).
-                    xRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsX), 0)); //the top of the range for X. it is 10^DigitsX
-                    x = Math.Abs(RandomLong(xRangeBottom, xRangeTop));
+                    xRangeBottom = ten.Pow(digitCodes[dcChoice].DigitsX - 1); //the bottom of the range for X. it is 10^(DigitsX - 1)
+                    xRangeTop = ten.Pow(digitCodes[dcChoice].DigitsX); //the top of the range for X. it is 10^DigitsX
+                    x = RandomEInt(xRangeBottom, xRangeTop).Abs();
                 }
 
                 if (digitCodes[dcChoice].DigitsY <= 0) // {b..t} number format (b = bottom; t = top)
                 {
-                    yRangeBottom = Convert.ToInt64(digitCodes[dcChoice].LowerBoundY);
-                    yRangeTop = Convert.ToInt64(digitCodes[dcChoice].UpperBoundY);
-                    y = Math.Abs(RandomLong(yRangeBottom, yRangeTop + 1));
+                    yRangeBottom = digitCodes[dcChoice].LowerBoundY;
+                    yRangeTop = digitCodes[dcChoice].UpperBoundY;
+                    y = RandomEInt(yRangeBottom, yRangeTop + 1);
+                }
+                else if (digitCodes[dcChoice].Operation == '^')
+                {
+                    y = digitCodes[dcChoice].DigitsY;
                 }
                 else
                 {
-                    yRangeBottom = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY - 1), 0));
-                    yRangeTop = Convert.ToInt64(Math.Round(Math.Pow(10, digitCodes[dcChoice].DigitsY), 0));
-                    y = Math.Abs(RandomLong(yRangeBottom, yRangeTop));
+                    yRangeBottom = ten.Pow(digitCodes[dcChoice].DigitsY - 1);
+                    yRangeTop = ten.Pow(digitCodes[dcChoice].DigitsY);
+                    y = RandomEInt(yRangeBottom, yRangeTop).Abs();
                 }
 
                 // make a problem string with the random numbers and the operation
@@ -611,13 +632,13 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else if (digitCodes[dcChoice].Operation == 'R')
                 {
-                    if (digitCodes[dcChoice].DigitsX == 2)
+                    if (x == EInteger.FromInt32(2))
                     {
                         problem = '√' + y.ToString();
                     }
                     else
                     {
-                        problem = ToSuperScript(digitCodes[dcChoice].DigitsX.ToString()) + '√' + y;
+                        problem = ToSuperScript(x.ToString()) + '√' + y;
                     }
 
                 }
@@ -626,8 +647,8 @@ namespace Lunariens_Mental_Math_Trainer
                     problem = x.ToString() + digitCodes[dcChoice].Operation + "\n" + y;
                 }
                 // precompute the correct solution
-                long? intResult = null; //the null value indicates that the problem does not have a solution of this type. this is utilized later.
-                decimal? decResult = null;
+                EInteger? intResult = null; //the null value indicates that the problem does not have a solution of this type. this is utilized later.
+                EDecimal? decResult = null;
                 switch (digitCodes[dcChoice].Operation)
                 {
                     case '+':
@@ -640,13 +661,36 @@ namespace Lunariens_Mental_Math_Trainer
                         intResult = x * y;
                         break;
                     case '/':
-                        decResult = Math.Round(Convert.ToDecimal(x) / Convert.ToDecimal(y), digitCodes[dcChoice].Decimals, MidpointRounding.ToZero);
+                        ctx = new(digitCodes[dcChoice].Decimals + digitCodes[dcChoice].DigitsX - digitCodes[dcChoice].DigitsY + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        decResult = EDecimal.FromEInteger(x).Divide(EDecimal.FromEInteger(y), ctx).Quantize(EDecimal.FromString($"0.{new String('0', digitCodes[dcChoice].Decimals.ToInt32Checked() - 1)}1"), ctx);
                         break;
                     case '^':
-                        intResult = (long)Math.Pow(x, y);
+                        intResult = x.Pow(y);
                         break;
                     case 'R':
-                        decResult = Math.Round((decimal)Math.Pow(Convert.ToDouble(y), 1 / Convert.ToDouble(digitCodes[dcChoice].DigitsX)), digitCodes[dcChoice].Decimals, MidpointRounding.ToZero);
+
+                        if (digitCodes[dcChoice].DigitsX == EInteger.FromInt32(-1) && digitCodes[dcChoice].DigitsY == EInteger.FromInt32(-1)) // DigitsX = -1; DigitsY = -1;
+                        {
+                            ctx = new(digitCodes[dcChoice].Decimals + y.ToString().Length / x.ToString().Length + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        }
+                        else if (digitCodes[dcChoice].DigitsX == EInteger.FromInt32(-1) && digitCodes[dcChoice].DigitsY != EInteger.FromInt32(-1)) // DigitsX = -1; DigitsY = (int)digit count;
+                        {
+                            ctx = new(digitCodes[dcChoice].Decimals + digitCodes[dcChoice].DigitsY / x.ToString().Length + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        }
+                        else if (digitCodes[dcChoice].DigitsX == EInteger.FromInt32(-1) && digitCodes[dcChoice].DigitsY == EInteger.FromInt32(-1))  // DigitsX = (int)something else;; DigitsY = -1;
+                        {
+                            ctx = new(digitCodes[dcChoice].Decimals + y.ToString().Length / digitCodes[dcChoice].DigitsX + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        }
+                        else
+                        {
+                            ctx = new(digitCodes[dcChoice].Decimals + digitCodes[dcChoice].DigitsY / digitCodes[dcChoice].DigitsX + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        }
+                        EContext ctxExponent = new(10000, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                        EDecimal a = EDecimal.FromEInteger(y);
+                        EDecimal exponent = EDecimal.One.Divide(EDecimal.FromEInteger(x), ctxExponent);
+                        EDecimal b = a.Pow(exponent, ctx);
+                        EDecimal c = b.Quantize(EDecimal.FromString($"0.{new String('0', digitCodes[dcChoice].Decimals.ToInt32Checked() - 1)}1"), ctx);
+                        decResult = c;
                         break;
                     default: //should be impossible to reach here.
                         intResult = 0;
@@ -690,11 +734,11 @@ namespace Lunariens_Mental_Math_Trainer
 
                     // truncate the result down to the number of decimals specified in the digit code, so that extra decimals don't cause the answer to be marked wrong
 
-                    int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals + 1;
+                    int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals.ToInt32Unchecked();
 
                     if (usrResult.Length > decimalIndex && usrResult.Contains('.'))
                     {
-                        usrResult = usrResult.Substring(0, decimalIndex + digitCodes[dcChoice].Decimals);
+                        usrResult = usrResult.Substring(0, decimalIndex + digitCodes[dcChoice].Decimals.ToInt32Unchecked());
                     }
 
 
@@ -706,9 +750,19 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     else if (intResult != null && usrResult != "") //if the result is an int.
                     {
-                        if (long.TryParse(usrResult, out long _))
+                        bool isNumeric;
+                        try
                         {
-                            if (long.Parse(usrResult) == intResult) // if correct
+                            EInteger.FromString(usrResult);
+                            isNumeric = true;
+                        }
+                        catch (FormatException)
+                        {
+                            isNumeric = false;
+                        }
+                        if (isNumeric)
+                        {
+                            if (EInteger.FromString(usrResult).Equals(intResult)) // if correct
                             {
                                 GoodConsoleClear();
                                 Console.ForegroundColor = ConsoleColor.Green;
@@ -741,10 +795,24 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     else if (decResult != null && usrResult != "") //if the result is a decimal
                     {
-
+                        bool isNumericDecimal;
+                        try
+                        {
+                            EDecimal.FromString(usrResult);
+                            isNumericDecimal = true;
+                        }
+                        catch (FormatException)
+                        {
+                            isNumericDecimal = false;
+                        }
                         if (decimal.TryParse(usrResult, NumberStyles.AllowDecimalPoint, ifp, out decimal _))
                         {
-                            if (decResult == decimal.Parse(usrResult, CultureInfo.InvariantCulture))
+                            if (decResult.ToString().Contains($".{new String('0', decResult.Exponent.Abs().ToInt32Checked())}"))
+                            {
+                                ctx = new(usrResult.Length, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+                            }
+
+                            if (decResult.Equals(EDecimal.FromString(usrResult, ctx)))
                             {
                                 SaveStatistic(digitCodes.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, true);
                                 GoodConsoleClear();
@@ -760,7 +828,7 @@ namespace Lunariens_Mental_Math_Trainer
                             {
                                 SaveStatistic(digitCodes.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, false);
                                 GoodConsoleClear();
-                                Console.WriteLine("Wrong, correct was: " + decResult?.ToString(ifp));
+                                Console.WriteLine("Wrong, correct was: " + decResult?.ToString());
 
                                 if (problemCount != null) problemCount -= 1;
                                 if (problemCount <= 0) training = false;
