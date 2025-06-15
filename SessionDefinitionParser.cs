@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using ConsoleTables;
 using PeterO.Numbers;
 
 namespace Lunariens_Mental_Math_Trainer
@@ -30,21 +29,11 @@ namespace Lunariens_Mental_Math_Trainer
         {
             if (input == null)
                 return [new DigitCode(-1, -1, '\0')];
-            string dcPattern = @"([1-9]\d*)(\+|\-|\*|\/|R|\^)(\d+)(?:\.([1-9]\d*))?";
-            Regex dcRegex = new(dcPattern);
 
-            MatchCollection matches = dcRegex.Matches(input);
-            List<DigitCode> digitCodes = new();
-            foreach (Match dc in matches)
-            {
-                int digitsX = int.Parse(dc.Groups[1].ToString());
-                int digitsY = int.Parse(dc.Groups[3].ToString());
-                char op = dc.Groups[2].ToString()[0];
-                int decimals = dc.Groups[4].Success ? int.Parse(dc.Groups[4].ToString()) : 0;
-                DigitCode newDc = new(digitsX, digitsY, op, decimals);
-                digitCodes.Add(newDc);
-            }
-            return digitCodes.ToArray();
+            Parser parser = new(input);
+            DigitCode[] digitCodes = parser.Parse(out _);
+
+            return digitCodes;
         }
     }
     public class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
@@ -100,20 +89,46 @@ namespace Lunariens_Mental_Math_Trainer
                     Console.WriteLine("The dot is required when specifying the amount of decimal digits. Z is the amount of decimals.");
                     Console.WriteLine();
                     Console.WriteLine("By default, you get an infinite supply of problems.");
-                    Console.WriteLine("You can set a specific amount of problems by typing a number after the digit code, preceded by a space.");
-
+                    Console.WriteLine("You can set a specific amount of problems by typing a number at the end of the session definition, preceded by a space.");
+                    Console.WriteLine();
+                    Console.WriteLine("You can also enter multiple digit codes to train with multiple problem types.");
+                    Console.WriteLine("They should be separated by a space in between each one.");
+                    Console.WriteLine();
+                    Console.WriteLine("Instead of the digit amount, you may enter a curly brace-delimited precise number range of the following format:");
+                    Console.WriteLine("{b..t}");
+                    Console.WriteLine("\"b\" means bottom, and \"t\" means top, corresponding to the bottom- and top-most number in the range.");
                     Console.WriteLine();
                     Console.WriteLine("Example digit code inputs:");
                     Console.WriteLine("3+3 10");
                     Console.WriteLine("5/2.2 5");
                     Console.WriteLine("2R3.4");
-                    Console.WriteLine("5^2 100");
+                    Console.WriteLine("{11..35}^2 100");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 else if (digitCodeMatch.Count > 0)
                 {
+                    while (true)
+                    {
+                        DigitCode[] digitCodes = DCUtilities.ParseDigitCodes(usrDigitCodeInput);
+                        if (digitCodes.Length == 0 || digitCodes.Length > 1)
+                        {
+                            Console.WriteLine($"Expected exactly one digit code to be present. Found {digitCodes.Length}");
+                            continue;
+                        }
+                        else
+                        {
+                            DigitsX = digitCodes[0].DigitsX;
+                            DigitsY = digitCodes[0].DigitsY;
+                            LowerBoundX = digitCodes[0].LowerBoundX;
+                            UpperBoundX = digitCodes[0].UpperBoundX;
+                            LowerBoundY = digitCodes[0].LowerBoundY;
+                            UpperBoundY = digitCodes[0].UpperBoundY;
+                            Operation = digitCodes[0].Operation;
+                            Decimals = digitCodes[0].Decimals;
+                            return digitCodes;
+                        }
+                    }
                     // Extract groups
-                    return DCUtilities.ParseDigitCodes(usrDigitCodeInput);
 
                     // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
                     // Last used in the making of release 0.3.0
@@ -164,7 +179,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else
                 {
-                    Console.WriteLine("Invalid digit code format. (Did you forget a decimal point? Did you type a two digit number somewhere?)");
+                    Console.WriteLine("Invalid digit code format. (Did you forget a decimal point?)");
                 }
 
             }

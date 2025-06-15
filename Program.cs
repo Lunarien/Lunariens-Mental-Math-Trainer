@@ -226,6 +226,10 @@ namespace Lunariens_Mental_Math_Trainer
 
         public static EInteger RandomEInt(EInteger bottom, EInteger top)
         {
+            if (bottom > top)
+            {
+                throw new ArgumentException("Bottom must be less than or equal to top.");
+            }
             Random randomness = new();
             EInteger rangeSize = top - bottom;
 
@@ -594,6 +598,12 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     xRangeBottom = digitCodes[dcChoice].LowerBoundX;
                     xRangeTop = digitCodes[dcChoice].UpperBoundX;
+                    if (xRangeBottom > xRangeTop)
+                    {
+                        EInteger temp = xRangeBottom;
+                        xRangeBottom = xRangeTop;
+                        xRangeTop = temp;
+                    }
                     x = RandomEInt(xRangeBottom, xRangeTop + 1);
                 }
                 else if (digitCodes[dcChoice].Operation == 'R')
@@ -604,6 +614,12 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     xRangeBottom = ten.Pow(digitCodes[dcChoice].DigitsX - 1); //the bottom of the range for X. it is 10^(DigitsX - 1)
                     xRangeTop = ten.Pow(digitCodes[dcChoice].DigitsX); //the top of the range for X. it is 10^DigitsX
+                    if (xRangeBottom > xRangeTop)
+                    {
+                        var temp = xRangeBottom;
+                        xRangeBottom = xRangeTop;
+                        xRangeTop = temp;
+                    }
                     x = RandomEInt(xRangeBottom, xRangeTop).Abs();
                 }
 
@@ -611,6 +627,12 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     yRangeBottom = digitCodes[dcChoice].LowerBoundY;
                     yRangeTop = digitCodes[dcChoice].UpperBoundY;
+                    if (yRangeBottom > yRangeTop)
+                    {
+                        var temp = yRangeBottom;
+                        yRangeBottom = yRangeTop;
+                        yRangeTop = temp;
+                    }
                     y = RandomEInt(yRangeBottom, yRangeTop + 1);
                 }
                 else if (digitCodes[dcChoice].Operation == '^')
@@ -621,6 +643,12 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     yRangeBottom = ten.Pow(digitCodes[dcChoice].DigitsY - 1);
                     yRangeTop = ten.Pow(digitCodes[dcChoice].DigitsY);
+                    if (yRangeBottom > yRangeTop)
+                    {
+                        var temp = yRangeBottom;
+                        yRangeBottom = yRangeTop;
+                        yRangeTop = temp;
+                    }
                     y = RandomEInt(yRangeBottom, yRangeTop).Abs();
                 }
 
@@ -1198,7 +1226,7 @@ namespace Lunariens_Mental_Math_Trainer
 
                     GoodConsoleClear();
                     DigitCode usrDC = new();
-                    usrDC.Get();
+                    
                     GoodConsoleClear();
                     OpenStatisticScreen(usrDC.ToString(), selectedMode);
                 }
