@@ -44,7 +44,25 @@ namespace Lunariens_Mental_Math_Trainer
             { "8", "eighth root of " },
             { "9", "ninth root of " }
         };
-
+        public static string NumToWords(string number, char magnitudeSep)
+        {
+            string[] parts = number.Split(magnitudeSep);
+            if (parts.Length == 1)
+            {
+                return number;
+            }
+            string[] magnitudes = { "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion" };
+            List<string> words = new List<string>();
+            int magnitudeIndex = parts.Length - 2;
+            for (int i = 0; i < parts.Length; i++, magnitudeIndex--)
+            {
+                if (!string.IsNullOrWhiteSpace(parts[i]))
+                {
+                    words.Add(parts[i] + (magnitudeIndex >= 0 && magnitudeIndex < magnitudes.Length ? " " + magnitudes[magnitudeIndex] : ""));
+                }
+            }
+            return string.Join(" ", words).Trim();
+        }
         public static DigitCode[] ParseDigitCodes(string? input)
         {
             if (input == null)
@@ -293,8 +311,33 @@ namespace Lunariens_Mental_Math_Trainer
         public static void OutputProblem(string problem, SpeechSynthesizer synth)
         {
 
-            if (mode == 0) //text mode
+            if (mode is Text) //text mode
             {
+                // if the first number is bigger than the second number, add num1.Length - num2.Length spaces to the beginning of the second number
+                Regex numRegex = new(@"\d+");
+                MatchCollection numbers = numRegex.Matches(problem);
+                Regex exceptionSymbols = new(@"[⁰¹²³⁴⁵⁶⁷⁸⁹√^]+");
+                int spacesToAdd;
+                if (numbers.Count == 2 && !exceptionSymbols.IsMatch(problem))
+                {
+                    string num1 = numbers[0].Value;
+                    string num2 = numbers[1].Value;
+                    if (num1.Length > num2.Length)
+                    {
+                        spacesToAdd = num1.Length - num2.Length;
+                        problem = problem.Insert(problem.IndexOf(num2), new string(' ', spacesToAdd - 1));
+                    }
+                    else if (num1.Length < num2.Length)
+                    {
+                        spacesToAdd = num2.Length - num1.Length;
+                        problem = "  " + new string(' ', spacesToAdd - 1) + problem;
+                    }
+                    else
+                    {
+                        problem = " " + problem;
+                    }
+                }
+
                 Console.WriteLine(problem);
             }
             if (mode is Speech) //speech mode
@@ -304,21 +347,17 @@ namespace Lunariens_Mental_Math_Trainer
 
                 char op = char.Parse(Regex.Replace(problem, @"[⁰¹²³⁴⁵⁶⁷⁸⁹\d\n]", string.Empty));
 
-                problem = Regex.Replace(problem, @"[*^/+\-]", " "); //put a space between numbers instead of the operator
+                problem = Regex.Replace(problem, @"[*^/+\-\n]", " "); //put a space between numbers instead of the operator
+                problem = Regex.Replace(problem, @"[\n\s]+", " "); //remove multi spaces
                 problem = Regex.Replace(problem, @"√", "");
                 string[] numbers;
-                if (op == '√' || op == '^') //split the problem into individual numbers
-                {
-                    numbers = problem.Split(" ");
-                }
-                else
-                {
-                    numbers = problem.Split(" \n");
-                }
+                //split the problem into individual numbers
+                numbers = problem.Split(" ");
 
                 for (int i = 0; i < numbers.Length; i++)
                 {
                     numbers[i] = AddCommas(numbers[i]);
+                    numbers[i] = NumToWords(numbers[i], ','); //convert the number to words
                 }
                 Thread.Sleep(Configuration.SpeechDelay);
                 switch (op)
@@ -672,7 +711,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else
                 {
-                    problem = x.ToString() + digitCodes[dcChoice].Operation + "\n" + y;
+                    problem = x.ToString() + "\n" + digitCodes[dcChoice].Operation + y;
                 }
                 // precompute the correct solution
                 EInteger? intResult = null; //the null value indicates that the problem does not have a solution of this type. this is utilized later.
@@ -1152,11 +1191,11 @@ namespace Lunariens_Mental_Math_Trainer
                         {
                             if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9) //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
                             {
-                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][9..][4].ToString());
+                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][-5].ToString());
                             }
                             else
                             {
-                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][9..][6].ToString());
+                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][-5].ToString());
                             }
                         }
                         else if (usrFileChoice == "exit")
@@ -1226,7 +1265,7 @@ namespace Lunariens_Mental_Math_Trainer
 
                     GoodConsoleClear();
                     DigitCode usrDC = new();
-                    
+
                     GoodConsoleClear();
                     OpenStatisticScreen(usrDC.ToString(), selectedMode);
                 }

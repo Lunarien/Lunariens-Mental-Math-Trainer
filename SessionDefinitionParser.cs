@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using PeterO.Numbers;
 
@@ -190,7 +191,7 @@ namespace Lunariens_Mental_Math_Trainer
             string boundsY;
             if (DigitsX == EInteger.FromInt32(-1))
             {
-                boundsX = $"{{{LowerBoundX}..{UpperBoundX}}}";
+                boundsX = LowerBoundX < UpperBoundX ? $"{{{LowerBoundX}..{UpperBoundX}}}" : $"{{{UpperBoundX}..{LowerBoundX}}}";
             }
             else
             {
@@ -199,7 +200,7 @@ namespace Lunariens_Mental_Math_Trainer
 
             if (DigitsY == EInteger.FromInt32(-1))
             {
-                boundsY = $"{{{LowerBoundY}..{UpperBoundY}}}";
+                boundsY = LowerBoundY < UpperBoundY ? $"{{{LowerBoundY}..{UpperBoundY}}}" : $"{{{UpperBoundY}..{LowerBoundY}}}";
             }
             else
             {
@@ -220,8 +221,8 @@ namespace Lunariens_Mental_Math_Trainer
     {
         private string[] SplitSessionDefinition(string sessionDefinition)
         {
-            Regex regex = new(@"\s+");
-            MatchCollection matches = regex.Matches(sessionDefinition);
+            Regex whitespaceRegex = new(@"\s+");
+            MatchCollection matches = whitespaceRegex.Matches(sessionDefinition);
             foreach (Match match in matches)
             {
                 sessionDefinition.Replace(match.ToString(), " ");
@@ -259,8 +260,9 @@ namespace Lunariens_Mental_Math_Trainer
 
 
             GroupCollection groups = match.Groups;
-            Group[] groupArray = groups.Cast<Group>().ToArray();
+            Group[] groupArray = groups.Values.ToArray();
             Regex rangeRegex = new(@"\{([1-9]\d*)\.\.([1-9]\d*)\}");
+            Regex validNumbers = new(@"^[1-9]\d*$");
             for (int i = 1; i < groupArray.Length; i++)
             {
 
@@ -283,8 +285,9 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     operation = groupArray[i].ToString()[0];
                 }
-                else if (int.TryParse(groupArray[i].ToString(), out int num))
+                else if (validNumbers.IsMatch(groupArray[i].ToString()))
                 {
+                    int num = int.Parse(groupArray[i].ToString(), CultureInfo.InvariantCulture);
                     if (i == 1)
                     {
                         if (digitsX == -1)
