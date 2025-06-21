@@ -1202,14 +1202,8 @@ namespace Lunariens_Mental_Math_Trainer
                         // retrieve the mode from the file name. This is used in the OpenStatisticScreen method below.
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
-                            if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9) //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
-                            {
-                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][-5].ToString());
-                            }
-                            else
-                            {
-                                fileMode = (Modes)int.Parse(files[int.Parse(usrFileChoice) - 1][-5].ToString());
-                            }
+                            string file = files[int.Parse(usrFileChoice) - 1];
+                            fileMode = (Modes)int.Parse(file[file.Length - 5].ToString());
                         }
                         else if (usrFileChoice == "exit")
                         {
