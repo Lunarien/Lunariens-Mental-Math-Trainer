@@ -51,7 +51,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 return number;
             }
-            string[] magnitudes = { "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion" };
+            string[] magnitudes = { "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion", "quadragintillion", "unquadragintillion", "duoquadragintillion", "trequadragintillion", "quattuorquadragintillion", "quinquadragintillion", "sexquadragintillion", "septenquadragintillion", "octoquadragintillion", "novemquadragintillion", "quinquagintillion", "unquinquagintillion", "duoquinquagintillion", "trequinquagintillion", "quattuorquinquagintillion", "quinquinquagintillion", "sexquinquagintillion", "septenquinquagintillion", "octoquinquagintillion", "novemquinquagintillion", "sexagintillion", "unsexagintillion", "duosexagintillion", "tresexagintillion", "quattuorsexagintillion", "quinsexagintillion", "sexsexagintillion", "septensexagintillion", "octosexagintillion", "novemsexagintillion", "septuagintillion", "unseptuagintillion", "duoseptuagintillion", "treseptuagintillion", "quattuorseptuagintillion", "quinseptuagintillion", "sexseptuagintillion", "septenseptuagintillion", "octoseptuagintillion", "novemseptuagintillion", "octogintillion", "unoctogintillion", "duooctogintillion", "treoctogintillion", "quattuoroctogintillion", "quinoctogintillion", "sexoctogintillion", "septenoctogintillion", "octooctogintillion", "novemoctogintillion", "nonagintillion", "unnonagintillion", "duononagintillion", "trenonagintillion", "quattuornonagintillion", "quinnonagintillion", "sexnonagintillion", "septennonagintillion", "octononagintillion", "novemnonagintillion", "centillion", "uncentillion", "duocentillion", "trecentillion", "quattuorcentillion", "quincentillion", "sexcentillion", "septencentillion", "octocentillion", "novemcentillion", "duocentillion", "treduocentillion", "quattuorduocentillion", "quinduocentillion", "sexduocentillion", "septenduocentillion", "octoduocentillion", "novemduocentillion", "trecentillion", "quattuortrecentillion", "quintrencentillion", "sextrencentillion", "septentrencentillion", "octotrencentillion", "novemtrencentillion" };
             List<string> words = new List<string>();
             int magnitudeIndex = parts.Length - 2;
             for (int i = 0; i < parts.Length; i++, magnitudeIndex--)
@@ -282,6 +282,16 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return result;
         }
+        public static string SuperscriptToNum(string sup)
+        {
+            string sups = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+            string result = "";
+            for (int i = 0; i < sup.Length; i++)
+            {
+                result += sups.IndexOf(sup[i]).ToString(); // this appends the number corresponding to the superscript to the string result.
+            }
+            return result;
+        }
 
         public static string AddCommas(string number)
         {
@@ -349,7 +359,7 @@ namespace Lunariens_Mental_Math_Trainer
 
                 problem = Regex.Replace(problem, @"[*^/+\-\n]", " "); //put a space between numbers instead of the operator
                 problem = Regex.Replace(problem, @"[\n\s]+", " "); //remove multi spaces
-                problem = Regex.Replace(problem, @"√", "");
+                problem = Regex.Replace(problem, @"√", " ");
                 string[] numbers;
                 //split the problem into individual numbers
                 numbers = problem.Split(" ");
@@ -415,11 +425,14 @@ namespace Lunariens_Mental_Math_Trainer
                         }
                         else if (numbers.Length == 2)
                         {
-                            if (!rootMap.TryGetValue(numbers[0], out var root))
+                            if (rootMap.TryGetValue(SuperscriptToNum(numbers[0]), out var root))
                             {
-                                Console.WriteLine("An error occured during processing of the problem for speech output.");
+                                problem = root + numbers[1];
                             }
-                            problem = root + numbers[1];
+                            else
+                            {
+                                problem = "root of base " + SuperscriptToNum(numbers[0]) + " of " + numbers[1];
+                            }
                         }
                         synth.Speak(problem);
                         synth.SetOutputToNull();
