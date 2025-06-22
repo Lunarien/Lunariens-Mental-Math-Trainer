@@ -1095,16 +1095,6 @@ namespace Lunariens_Mental_Math_Trainer
                             {
                                 if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                                 {
-                                    if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
-                                    {
-                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
-                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
-                                    }
-                                    else
-                                    {
-                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
-                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
-                                    }
                                     string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
                                     if (statLines.Length == 1)
                                     {
@@ -1113,6 +1103,18 @@ namespace Lunariens_Mental_Math_Trainer
                                         Console.WriteLine("No statistics found inside the selected file.");
                                         Console.ForegroundColor = ConsoleColor.White;
                                         continue;
+                                    }
+                                    if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
+                                    {
+                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
+                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                        inOption2 = false;
+                                    }
+                                    else
+                                    {
+                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
+                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                        inOption2 = false;
                                     }
                                 }
                                 else
