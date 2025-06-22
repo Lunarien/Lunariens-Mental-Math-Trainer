@@ -1068,7 +1068,9 @@ namespace Lunariens_Mental_Math_Trainer
                                 }
                                 else
                                 {
-                                    fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][6].ToString());
+                                    int modeIndex = files[int.Parse(usrFileChoice) - 1].IndexOf('m');
+                                    string file = files[int.Parse(usrFileChoice) - 1];
+                                    fileMode = int.Parse(file[modeIndex + 1].ToString());
                                 }
 
                             }
@@ -1095,6 +1097,8 @@ namespace Lunariens_Mental_Math_Trainer
                             {
                                 if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                                 {
+                                    string file = files[int.Parse(usrFileChoice) - 1];
+
                                     string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
                                     if (statLines.Length == 1)
                                     {
@@ -1104,18 +1108,9 @@ namespace Lunariens_Mental_Math_Trainer
                                         Console.ForegroundColor = ConsoleColor.White;
                                         continue;
                                     }
-                                    if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
-                                    {
-                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
-                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
-                                        inOption2 = false;
-                                    }
-                                    else
-                                    {
-                                        string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
-                                        OpenStatisticGraph(statDigitCode, (Modes)fileMode);
-                                        inOption2 = false;
-                                    }
+                                    string statDigitCode = file[9..^6];
+                                    OpenStatisticGraph(statDigitCode, (Modes)fileMode);
+                                    inOption2 = false;
                                 }
                                 else
                                 {
@@ -1205,7 +1200,8 @@ namespace Lunariens_Mental_Math_Trainer
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
                             string file = files[int.Parse(usrFileChoice) - 1];
-                            fileMode = (Modes)int.Parse(file[file.Length - 5].ToString());
+                            int modeIndex = file.IndexOf("m") + 1;
+                            fileMode = (Modes)int.Parse(file[modeIndex].ToString());
                         }
                         else if (usrFileChoice == "exit")
                         {
@@ -1225,18 +1221,11 @@ namespace Lunariens_Mental_Math_Trainer
                         {
                             if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                             {
-                                if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
-                                {
-                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 3);
-                                    GoodConsoleClear();
-                                    OpenStatisticScreen(statDigitCode, fileMode);
-                                }
-                                else
-                                {
-                                    string statDigitCode = files[int.Parse(usrFileChoice) - 1].Substring(9, 5);
-                                    GoodConsoleClear();
-                                    OpenStatisticScreen(statDigitCode, fileMode);
-                                }
+                                string file = files[int.Parse(usrFileChoice) - 1];
+
+                                string statDigitCode = file[9..^6];
+                                GoodConsoleClear();
+                                OpenStatisticScreen(statDigitCode, fileMode);
                             }
                             else
                             {
@@ -1274,6 +1263,7 @@ namespace Lunariens_Mental_Math_Trainer
 
                     GoodConsoleClear();
                     DigitCode usrDC = new();
+                    usrDC.Get();
 
                     GoodConsoleClear();
                     OpenStatisticScreen(usrDC.ToString(), selectedMode);

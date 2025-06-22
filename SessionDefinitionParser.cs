@@ -51,9 +51,7 @@ namespace Lunariens_Mental_Math_Trainer
         public DigitCode[]? Get()
         {
             string dcPattern = @"([1-9]\d*)(\+|\-|\*|\/|R|\^)([1-9]\d*)(?:\.([1-9]\d*))?"; //regex pattern to match digit codes
-            string problemCountPattern = @" \d+\s*$";
             Regex dcRegex = new(dcPattern);
-            Regex problemCountRegex = new(problemCountPattern);
 
             Console.WriteLine("Enter a digit code and (optionally) the amount of problems. Enter \"help\" to get more info.");
 
@@ -61,6 +59,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 Console.Write("Digit code: ");
                 string usrDigitCodeInput = Console.ReadLine();
+
 
                 if (usrDigitCodeInput == "exit")
                 {
@@ -71,8 +70,8 @@ namespace Lunariens_Mental_Math_Trainer
                     Operation = '\0';
                     return null;
                 }
-                MatchCollection digitCodeMatch = dcRegex.Matches(usrDigitCodeInput);
-                Match problemCountMatch = problemCountRegex.Match(usrDigitCodeInput);
+                Parser parser = new(usrDigitCodeInput);
+                DigitCode[] digitCodes = parser.Parse(out _);
 
                 if (usrDigitCodeInput == "help")
                 {
@@ -106,29 +105,21 @@ namespace Lunariens_Mental_Math_Trainer
                     Console.WriteLine("{11..35}^2 100");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
-                else if (digitCodeMatch.Count > 0)
+                else if (digitCodes.Length == 1)
                 {
-                    while (true)
-                    {
-                        DigitCode[] digitCodes = DCUtilities.ParseDigitCodes(usrDigitCodeInput);
-                        if (digitCodes.Length == 0 || digitCodes.Length > 1)
-                        {
-                            Console.WriteLine($"Expected exactly one digit code to be present. Found {digitCodes.Length}");
-                            continue;
-                        }
-                        else
-                        {
-                            DigitsX = digitCodes[0].DigitsX;
-                            DigitsY = digitCodes[0].DigitsY;
-                            LowerBoundX = digitCodes[0].LowerBoundX;
-                            UpperBoundX = digitCodes[0].UpperBoundX;
-                            LowerBoundY = digitCodes[0].LowerBoundY;
-                            UpperBoundY = digitCodes[0].UpperBoundY;
-                            Operation = digitCodes[0].Operation;
-                            Decimals = digitCodes[0].Decimals;
-                            return digitCodes;
-                        }
-                    }
+                    DigitCode dc = digitCodes[0];
+
+
+                    DigitsX = digitCodes[0].DigitsX;
+                    DigitsY = digitCodes[0].DigitsY;
+                    LowerBoundX = digitCodes[0].LowerBoundX;
+                    UpperBoundX = digitCodes[0].UpperBoundX;
+                    LowerBoundY = digitCodes[0].LowerBoundY;
+                    UpperBoundY = digitCodes[0].UpperBoundY;
+                    Operation = digitCodes[0].Operation;
+                    Decimals = digitCodes[0].Decimals;
+                    return digitCodes;
+                    
                     // Extract groups
 
                     // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
@@ -180,7 +171,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else
                 {
-                    Console.WriteLine("Invalid digit code format. (Did you forget a decimal point?)");
+                    Console.WriteLine("Digit code was in an invalid format. (Did you forget a decimal point? Did you enter multiple digit codes?)");
                 }
 
             }
