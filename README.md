@@ -54,5 +54,4 @@ When training in speech mode, you can press enter without having any text typed 
 * Bug fixes
 
 # Limitations
-* The program currently only accepts single-digit numbers for X, Y and Z in the digit code. This basically means that the problems can't have numbers with more than 9 digits.
 * When entering a wrong answer, you don't get to try again. I might try to implement trying again sometime.
