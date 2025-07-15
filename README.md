@@ -37,14 +37,14 @@ When training in speech mode, you can press enter without having any text typed 
 
 # Capabilities
 * Text to speech capabilities (uncommon amongst other trainers)
-* No silence at the end of the text-to-speech audio, making solve times much closer to correct. (unique to LMMT)
+* No silence at the end of the text-to-speech audio, making solve times (much) closer to correct. (**unique to LMMT**)
 * Timing
 * Bursts of problems (e. g. 10 problems at a time)
 * Using multiple problem types in one training session
 * Statistics
 * Graphing statistics
 * Precise operand definitions (not by number of digits, but by a number range)
-* Practically unlimited number capabilities (up to around 10 thousand-digit numbers)
+* Practically unlimited number capabilities (theoretically up to around 10 thousand-digit numbers) (**unique to LMMT**)
 
 # Planned features
 * (Custom) averages (like average of 10 problems, of 5, and arithmetic means)

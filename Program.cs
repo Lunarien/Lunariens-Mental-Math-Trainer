@@ -121,6 +121,7 @@ namespace Lunariens_Mental_Math_Trainer
                     Console.WriteLine("Instead of the digit amount, you may enter a curly brace-delimited precise number range of the following format:");
                     Console.WriteLine("{b..t}");
                     Console.WriteLine("\"b\" means bottom, and \"t\" means top, corresponding to the bottom- and top-most number in the range.");
+                    Console.WriteLine("If you only want a single number in the range, you can just enter only a single number in the format of: {n}");
                     Console.WriteLine();
                     Console.WriteLine("Example digit code inputs:");
                     Console.WriteLine("3+3 10");
@@ -335,7 +336,7 @@ namespace Lunariens_Mental_Math_Trainer
                     if (num1.Length > num2.Length)
                     {
                         spacesToAdd = num1.Length - num2.Length;
-                        problem = problem.Insert(problem.IndexOf(num2), new string(' ', spacesToAdd - 1));
+                        problem = problem.Insert(problem.LastIndexOf(num2), new string(' ', spacesToAdd - 1));
                     }
                     else if (num1.Length < num2.Length)
                     {
@@ -741,8 +742,18 @@ namespace Lunariens_Mental_Math_Trainer
                         intResult = x * y;
                         break;
                     case '/':
-                        ctx = new(digitCodes[dcChoice].Decimals + digitCodes[dcChoice].DigitsX - digitCodes[dcChoice].DigitsY + 1, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
-                        decResult = EDecimal.FromEInteger(x).Divide(EDecimal.FromEInteger(y), ctx).Quantize(EDecimal.FromString($"0.{new String('0', digitCodes[dcChoice].Decimals.ToInt32Checked() - 1)}1"), ctx);
+                        EInteger precision = digitCodes[dcChoice].Decimals + digitCodes[dcChoice].DigitsX - digitCodes[dcChoice].DigitsY + 1;
+                        ctx = new(precision, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
+
+                        int quantizationZeros = digitCodes[dcChoice].Decimals.ToInt32Checked() - 1;
+                        string quantization;
+                        if (quantizationZeros <= -1)
+                        {
+                            quantization = "1";
+                        }
+                        else quantization = "0." + new string('0', quantizationZeros) + "1";
+                        
+                        decResult = EDecimal.FromEInteger(x).Divide(EDecimal.FromEInteger(y), ctx).Quantize(EDecimal.FromString(quantization), ctx);
                         break;
                     case '^':
                         intResult = x.Pow(y);
@@ -814,11 +825,11 @@ namespace Lunariens_Mental_Math_Trainer
 
                     // truncate the result down to the number of decimals specified in the digit code, so that extra decimals don't cause the answer to be marked wrong
 
-                    int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals.ToInt32Unchecked();
+                    int decimalIndex = usrResult.IndexOf('.') + digitCodes[dcChoice].Decimals.ToInt32Unchecked() + 1;
 
                     if (usrResult.Length > decimalIndex && usrResult.Contains('.'))
                     {
-                        usrResult = usrResult.Substring(0, decimalIndex + digitCodes[dcChoice].Decimals.ToInt32Unchecked());
+                        usrResult = usrResult[..decimalIndex];
                     }
 
 
@@ -892,7 +903,8 @@ namespace Lunariens_Mental_Math_Trainer
                                 ctx = new(usrResult.Length, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);
                             }
 
-                            if (decResult.Equals(EDecimal.FromString(usrResult, ctx)))
+                            EDecimal usrResultDec = EDecimal.FromString(usrResult, ctx);
+                            if (decResult.CompareToValue(usrResultDec) == 0) // if correct
                             {
                                 SaveStatistic(digitCodes.ToString(), problem, usrResult, stopWatch.Elapsed.TotalSeconds, DateTime.Now, true);
                                 GoodConsoleClear();
@@ -934,7 +946,7 @@ namespace Lunariens_Mental_Math_Trainer
                         continue;
                     }
                     else if (decResult != null || intResult != null) // works like an else block, since at all times, at least one of the results has a value.
-                    { //so why is this here?....
+                    { //so why is this here?.... I guess it's for debugging purposes..
                         GoodConsoleClear();
                         Console.WriteLine("Invalid result.");
                         break;

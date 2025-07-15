@@ -119,7 +119,7 @@ namespace Lunariens_Mental_Math_Trainer
                     Operation = digitCodes[0].Operation;
                     Decimals = digitCodes[0].Decimals;
                     return digitCodes;
-                    
+
                     // Extract groups
 
                     // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
@@ -245,7 +245,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
             else
             {
-                throw new FormatException("No valid digit code found! (Did you forget a decimal point?)");
+                throw new FormatException("No valid digit code found in entered text! (Did you forget a decimal point?)");
             }
 
 
@@ -253,23 +253,43 @@ namespace Lunariens_Mental_Math_Trainer
             GroupCollection groups = match.Groups;
             Group[] groupArray = groups.Values.ToArray();
             Regex rangeRegex = new(@"\{([1-9]\d*)\.\.([1-9]\d*)\}");
+            Regex rangeRegexSimple = new(@"\{([1-9]\d*)\}"); // for ranges with a single number
             Regex validNumbers = new(@"^[1-9]\d*$");
+            Regex validDecimalNumbers = new(@"^[0-9]\d*$");
             for (int i = 1; i < groupArray.Length; i++)
             {
 
                 if (groupArray[i].ToString().Contains('{') && groupArray[i].ToString().Contains('}'))
                 {
-                    if (i == 1)
+                    if (i == 1) // if we're currently defining X
                     {
-                        Match rangeMatch = rangeRegex.Match(groupArray[i].ToString());
-                        dcLowerX = int.Parse(rangeMatch.Groups[1].ToString());
-                        dcUpperX = int.Parse(rangeMatch.Groups[2].ToString());
+                        if (rangeRegexSimple.IsMatch(groupArray[i].ToString()))
+                        {
+                            Match rangeMatch = rangeRegexSimple.Match(groupArray[i].ToString());
+                            dcLowerX = int.Parse(rangeMatch.Groups[1].ToString());
+                            dcUpperX = dcLowerX; // single number range
+                        }
+                        else
+                        {
+                            Match rangeMatch = rangeRegex.Match(groupArray[i].ToString());
+                            dcLowerX = int.Parse(rangeMatch.Groups[1].ToString());
+                            dcUpperX = int.Parse(rangeMatch.Groups[2].ToString());
+                        }
                     }
                     else
                     {
-                        Match rangeMatch = rangeRegex.Match(groupArray[i].ToString());
-                        dcLowerY = int.Parse(rangeMatch.Groups[1].ToString());
-                        dcUpperY = int.Parse(rangeMatch.Groups[2].ToString());
+                        if (rangeRegexSimple.IsMatch(groupArray[i].ToString()))
+                        {
+                            Match rangeMatch = rangeRegexSimple.Match(groupArray[i].ToString());
+                            dcLowerY = int.Parse(rangeMatch.Groups[1].ToString());
+                            dcUpperY = dcLowerY; // single number range
+                        }
+                        else
+                        {
+                            Match rangeMatch = rangeRegex.Match(groupArray[i].ToString());
+                            dcLowerY = int.Parse(rangeMatch.Groups[1].ToString());
+                            dcUpperY = int.Parse(rangeMatch.Groups[2].ToString());
+                        }
                     }
                 }
                 else if ("+-*/^R".Contains(groupArray[i].ToString()) && i != 4) //operator
@@ -298,6 +318,10 @@ namespace Lunariens_Mental_Math_Trainer
                     {
                         digitsY = num;
                     }
+                }
+                else if (validDecimalNumbers.IsMatch(groupArray[i].ToString()) && i == 4) //decimals
+                {
+                    decimals = int.Parse(groupArray[i].ToString(), CultureInfo.InvariantCulture);
                 }
                 else
                 {
