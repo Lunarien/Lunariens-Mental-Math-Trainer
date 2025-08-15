@@ -49,9 +49,11 @@ When training in speech mode, you can press enter without having any text typed 
 # Planned features
 * (Custom) averages (like average of 10 problems, of 5, and arithmetic means)
 * Chain calculation mode (LMMT outputs a problem consisting of several (3+) numbers. User types the result of this longer problem.)
-* A settings menu
+* A configurable flash anzan mode (for addition/subtraction or multiplication/division or a mix of custom operations)
+* A settings menu (configure the initial TTS mode delay and perhaps other things)
+* Statistic file merging
 * Cross-platform compatibility
 * Bug fixes
 
 # Limitations
-* When entering a wrong answer, you don't get to try again. I might try to implement trying again sometime.
+* When entering an incorrect answer, you don't get to try again. I might try to implement trying again sometime.
