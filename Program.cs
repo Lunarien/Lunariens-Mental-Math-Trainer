@@ -47,10 +47,14 @@ namespace Lunariens_Mental_Math_Trainer
         public static string NumToWords(string number, char magnitudeSep)
         {
             string[] parts = number.Split(magnitudeSep);
-            if (parts.Length == 1)
+            for (int i = 0; i < parts.Length; i++)
             {
-                return number;
+                parts[i] = parts[i].TrimStart('0');
             }
+            if (parts.Length == 1)
+                {
+                    return number;
+                }
             string[] magnitudes = { "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion", "quadragintillion", "unquadragintillion", "duoquadragintillion", "trequadragintillion", "quattuorquadragintillion", "quinquadragintillion", "sexquadragintillion", "septenquadragintillion", "octoquadragintillion", "novemquadragintillion", "quinquagintillion", "unquinquagintillion", "duoquinquagintillion", "trequinquagintillion", "quattuorquinquagintillion", "quinquinquagintillion", "sexquinquagintillion", "septenquinquagintillion", "octoquinquagintillion", "novemquinquagintillion", "sexagintillion", "unsexagintillion", "duosexagintillion", "tresexagintillion", "quattuorsexagintillion", "quinsexagintillion", "sexsexagintillion", "septensexagintillion", "octosexagintillion", "novemsexagintillion", "septuagintillion", "unseptuagintillion", "duoseptuagintillion", "treseptuagintillion", "quattuorseptuagintillion", "quinseptuagintillion", "sexseptuagintillion", "septenseptuagintillion", "octoseptuagintillion", "novemseptuagintillion", "octogintillion", "unoctogintillion", "duooctogintillion", "treoctogintillion", "quattuoroctogintillion", "quinoctogintillion", "sexoctogintillion", "septenoctogintillion", "octooctogintillion", "novemoctogintillion", "nonagintillion", "unnonagintillion", "duononagintillion", "trenonagintillion", "quattuornonagintillion", "quinnonagintillion", "sexnonagintillion", "septennonagintillion", "octononagintillion", "novemnonagintillion", "centillion", "uncentillion", "duocentillion", "trecentillion", "quattuorcentillion", "quincentillion", "sexcentillion", "septencentillion", "octocentillion", "novemcentillion", "duocentillion", "treduocentillion", "quattuorduocentillion", "quinduocentillion", "sexduocentillion", "septenduocentillion", "octoduocentillion", "novemduocentillion", "trecentillion", "quattuortrecentillion", "quintrencentillion", "sextrencentillion", "septentrencentillion", "octotrencentillion", "novemtrencentillion" };
             List<string> words = new List<string>();
             int magnitudeIndex = parts.Length - 2;

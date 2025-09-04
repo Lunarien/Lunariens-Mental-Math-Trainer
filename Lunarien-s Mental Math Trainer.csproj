@@ -9,6 +9,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+  <PathMap>$(MSBuildProjectDirectory)=C:\src</PathMap>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="ConsoleTables" Version="2.5.0" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
