@@ -4,39 +4,6 @@ using PeterO.Numbers;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    enum TokenType
-    {
-        Number,
-        Operator,   // + - * / R
-        Dot,        // .
-        Dash,       // -
-        Caret,      // ^
-        LBrace,     // {
-        RBrace,     // }
-        Whitespace,
-        Unknown,
-        EndOfInput
-    }
-    class Token
-    {
-        public TokenType Type { get; set; }
-        public string? Value { get; set; }
-    }
-
-
-    public static class DCUtilities
-    {
-        public static DigitCode[] ParseDigitCodes(string? input)
-        {
-            if (input == null)
-                return [new DigitCode(-1, -1, '\0')];
-
-            Parser parser = new(input);
-            DigitCode[] digitCodes = parser.Parse(out _);
-
-            return digitCodes;
-        }
-    }
     public class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
     {
         public EInteger DigitsX = digitsX;
