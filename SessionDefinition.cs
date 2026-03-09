@@ -86,55 +86,6 @@ namespace Lunariens_Mental_Math_Trainer
                     Operation = digitCodes[0].Operation;
                     Decimals = digitCodes[0].Decimals;
                     return digitCodes;
-
-                    // Extract groups
-
-                    // this giant commented section of code might still be used in the future. if it is not used for three major (0.X.0) releases in a row, delete it.
-                    // Last used in the making of release 0.3.0
-
-                    // string firstNumber = digitCodeMatch[0].Groups[1].Value; // First number
-                    // string operatorSymbol = digitCodeMatch[0].Groups[2].Value; // Operator
-                    // string secondNumber = digitCodeMatch[0].Groups[3].Value; // Second number
-                    // string? decimalPart = digitCodeMatch[0].Groups[4].Success ? digitCodeMatch[0].Groups[4].Value : null; // Decimal part (optional)
-
-                    // SessionConfiguration.problemCount = problemCountMatch.Length == 0 ? null : int.Parse(problemCountMatch.ToString());
-
-                    // if ("R^".Contains(operatorSymbol))
-                    // {
-                    //     DigitsX = int.Parse(firstNumber);
-                    //     Operation = operatorSymbol[0];
-                    //     DigitsY = int.Parse(secondNumber);
-                    //     if ((operatorSymbol == "R" || operatorSymbol == "^") && decimalPart != null)
-                    //     {
-                    //         Decimals = int.Parse(decimalPart);
-
-                    //     }
-                    //     else
-                    //     {
-                    //         Console.WriteLine("Invalid digit code format.");
-                    //     }
-                    // }
-                    // else if (operatorSymbol == "/")
-                    // {
-                    //     DigitsX = int.Parse(firstNumber);
-                    //     Operation = operatorSymbol[0];
-                    //     DigitsY = int.Parse(secondNumber);
-                    //     if (decimalPart != null)
-                    //     {
-                    //         Decimals = int.Parse(decimalPart);
-                    //         // return new DigitCode(digitsX, digitsY, Operation);
-                    //     }
-                    //     else
-                    //     {
-                    //         Console.WriteLine("Invalid digit code format.");
-                    //     }
-                    // }
-
-                    // DigitsX = int.Parse(firstNumber);
-                    // Operation = operatorSymbol[0];
-                    // DigitsY = int.Parse(secondNumber);
-                    // Decimals = digitCodeMatch[0].Groups[4].Success ? int.Parse(decimalPart) : 0;
-                    // // return new DigitCode(digitsX, digitsY, Operation);
                 }
                 else
                 {
