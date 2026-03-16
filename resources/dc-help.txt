@@ -1,0 +1,30 @@
+A digit code defines the type of the problem and has the following format:
+XopY.Z
+X and Y represent the number of digits for the first and second (random) number, respectively.
+op means operation, and can be one of the following: + - * / ^ R
+
+the ^ operator makes Y, the second number, represent the actual typed number.
+So if it was 2, then it is 2 and not a random 2 digit number.
+The R operator means root, and makes X represent the base of the root.
+So if X was 3, then the operation is a cube root.
+
+The last two things (.Z) are only required for / and R operations.
+They represent the amount of decimal digits needed in the result.
+The dot is required when specifying the amount of decimal digits. Z is the amount of decimals.
+
+By default, you get an infinite supply of problems.
+You can set a specific amount of problems by typing a number at the end of the session definition, preceded by a space.
+
+You can also enter multiple digit codes to train with multiple problem types.
+They should be separated by a space in between each one.
+
+Instead of the digit amount, you may enter a curly brace-delimited precise number range of the following format:
+{b..t}
+"b" means bottom, and "t" means top, corresponding to the bottom- and top-most number in the range.
+If you only want a single number in the range, you can just enter only a single number in the format of: {n}
+
+Example digit code inputs:
+3+3 10
+5/2.2 5
+2R3.4
+{11..35}^2 100
