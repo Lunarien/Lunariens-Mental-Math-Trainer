@@ -66,7 +66,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else
                 {
-                    Console.WriteLine("Digit code was in an invalid format. (Did you forget a decimal point? Did you enter multiple digit codes?)");
+                    Console.WriteLine("Digit code was in an invalid format. (Did you forget a decimal point?)");
                 }
 
             }

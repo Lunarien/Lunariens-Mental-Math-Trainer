@@ -10,7 +10,6 @@ using static Lunariens_Mental_Math_Trainer.Modes;
 using NAudio.Wave;
 using System.Media;
 using PeterO.Numbers;
-using NAudio.Wave.SampleProviders;
 
 
 namespace Lunariens_Mental_Math_Trainer
@@ -67,26 +66,6 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return string.Join(" ", words).Trim();
         }
-        public static DigitCode[] ParseDigitCodes(string? input)
-        {
-            if (input == null)
-                return [new DigitCode(-1, -1, '\0')];
-            string dcPattern = @"(\d+)(\+|\-|\*|\/|R|\^)(\d+)(?:\.(\d+))?";
-            Regex dcRegex = new(dcPattern);
-
-            MatchCollection matches = dcRegex.Matches(input);
-            List<DigitCode> digitCodes = new();
-            foreach (Match dc in matches)
-            {
-                int digitsX = int.Parse(dc.Groups[1].ToString());
-                int digitsY = int.Parse(dc.Groups[3].ToString());
-                char op = dc.Groups[2].ToString()[0];
-                int decimals = dc.Groups[4].Success ? int.Parse(dc.Groups[4].ToString()) : 0;
-                DigitCode newDc = new(digitsX, digitsY, op, decimals);
-                digitCodes.Add(newDc);
-            }
-            return digitCodes.ToArray();
-        }
 
         public static string? GetDC()
         {
@@ -104,35 +83,10 @@ namespace Lunariens_Mental_Math_Trainer
                 else if (usrDigitCodeInput == "help")
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("A digit code defines the type of the problem and has the following format:");
-                    Console.WriteLine("XopY.Z");
-                    Console.WriteLine("X and Y represent the number of digits for the first and second (random) number, respectively.");
-                    Console.WriteLine("op means operation, and can be one of the following: + - * / ^ R");
-                    Console.WriteLine("the ^ operator makes Y, the second number, represent the actual typed number.\nThis has to be a whole number.");
-                    Console.WriteLine("So if it was 2, then it is 2 and not a random 2 digit number.");
-                    Console.WriteLine("The R operator means root, and makes X represent the base of the root.");
-                    Console.WriteLine("So if X was 3, then the operation is a cube root.");
-                    Console.WriteLine("The last two symbols are required for / and R operations.");
-                    Console.WriteLine("They represent the amount of decimal digits needed in the result.");
-                    Console.WriteLine("The dot is required when specifying the amount of decimal digits. Z is the amount of decimals.");
-                    Console.WriteLine();
-                    Console.WriteLine("By default, you get an infinite supply of problems.");
-                    Console.WriteLine("You can set a specific amount of problems by typing a number at the end of the session definition, preceded by a space.");
-                    Console.WriteLine();
-                    Console.WriteLine("You can also enter multiple digit codes to train with multiple problem types.");
-                    Console.WriteLine("They should be separated by a space in between each one.");
-                    Console.WriteLine();
-                    Console.WriteLine("Instead of the digit amount, you may enter a curly brace-delimited precise number range of the following format:");
-                    Console.WriteLine("{b..t}");
-                    Console.WriteLine("\"b\" means bottom, and \"t\" means top, corresponding to the bottom- and top-most number in the range.");
-                    Console.WriteLine("If you only want a single number in the range, you can just enter only a single number in the format of: {n}");
-                    Console.WriteLine();
-                    Console.WriteLine("Example digit code inputs:");
-                    Console.WriteLine("3+3 10");
-                    Console.WriteLine("5/2.2 5");
-                    Console.WriteLine("2R3.4");
-                    Console.WriteLine("{11..35}^2 100");
-
+                    using (StreamReader reader = new("./resources/dc-help.txt"))
+                    {
+                        Console.WriteLine(reader.ReadToEnd());
+                    }
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
