@@ -16,11 +16,11 @@ namespace Lunariens_Mental_Math_Trainer
 {
     public static class Configuration // this is to be saved and loaded to/from a config file in the future
     {
-        public static int SpeechDelay = 500;
+        internal static int SpeechDelay = 500;
     }
     public static class SessionConfiguration
     {
-        public static int? problemCount = null;
+        internal static int? problemCount = null;
     }
 
     public enum Modes
@@ -31,9 +31,9 @@ namespace Lunariens_Mental_Math_Trainer
     }
     public class Program
     {
-        public static Modes mode;
+        internal static Modes mode;
 
-        public static readonly Dictionary<string, string> rootMap = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> rootMap = new()
         {
             { "3", "cube root of " },
             { "4", "fourth root of " },
@@ -54,8 +54,8 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     return number;
                 }
-            string[] magnitudes = { "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion", "quadragintillion", "unquadragintillion", "duoquadragintillion", "trequadragintillion", "quattuorquadragintillion", "quinquadragintillion", "sexquadragintillion", "septenquadragintillion", "octoquadragintillion", "novemquadragintillion", "quinquagintillion", "unquinquagintillion", "duoquinquagintillion", "trequinquagintillion", "quattuorquinquagintillion", "quinquinquagintillion", "sexquinquagintillion", "septenquinquagintillion", "octoquinquagintillion", "novemquinquagintillion", "sexagintillion", "unsexagintillion", "duosexagintillion", "tresexagintillion", "quattuorsexagintillion", "quinsexagintillion", "sexsexagintillion", "septensexagintillion", "octosexagintillion", "novemsexagintillion", "septuagintillion", "unseptuagintillion", "duoseptuagintillion", "treseptuagintillion", "quattuorseptuagintillion", "quinseptuagintillion", "sexseptuagintillion", "septenseptuagintillion", "octoseptuagintillion", "novemseptuagintillion", "octogintillion", "unoctogintillion", "duooctogintillion", "treoctogintillion", "quattuoroctogintillion", "quinoctogintillion", "sexoctogintillion", "septenoctogintillion", "octooctogintillion", "novemoctogintillion", "nonagintillion", "unnonagintillion", "duononagintillion", "trenonagintillion", "quattuornonagintillion", "quinnonagintillion", "sexnonagintillion", "septennonagintillion", "octononagintillion", "novemnonagintillion", "centillion", "uncentillion", "duocentillion", "trecentillion", "quattuorcentillion", "quincentillion", "sexcentillion", "septencentillion", "octocentillion", "novemcentillion", "duocentillion", "treduocentillion", "quattuorduocentillion", "quinduocentillion", "sexduocentillion", "septenduocentillion", "octoduocentillion", "novemduocentillion", "trecentillion", "quattuortrecentillion", "quintrencentillion", "sextrencentillion", "septentrencentillion", "octotrencentillion", "novemtrencentillion" };
-            List<string> words = new List<string>();
+            string[] magnitudes = ["thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion", "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion", "octovigintillion", "novemvigintillion", "trigintillion", "untrigintillion", "duotrigintillion", "tretrigintillion", "quattuortrigintillion", "quintrigintillion", "sextrigintillion", "septentrigintillion", "octotrigintillion", "novemtrigintillion", "quadragintillion", "unquadragintillion", "duoquadragintillion", "trequadragintillion", "quattuorquadragintillion", "quinquadragintillion", "sexquadragintillion", "septenquadragintillion", "octoquadragintillion", "novemquadragintillion", "quinquagintillion", "unquinquagintillion", "duoquinquagintillion", "trequinquagintillion", "quattuorquinquagintillion", "quinquinquagintillion", "sexquinquagintillion", "septenquinquagintillion", "octoquinquagintillion", "novemquinquagintillion", "sexagintillion", "unsexagintillion", "duosexagintillion", "tresexagintillion", "quattuorsexagintillion", "quinsexagintillion", "sexsexagintillion", "septensexagintillion", "octosexagintillion", "novemsexagintillion", "septuagintillion", "unseptuagintillion", "duoseptuagintillion", "treseptuagintillion", "quattuorseptuagintillion", "quinseptuagintillion", "sexseptuagintillion", "septenseptuagintillion", "octoseptuagintillion", "novemseptuagintillion", "octogintillion", "unoctogintillion", "duooctogintillion", "treoctogintillion", "quattuoroctogintillion", "quinoctogintillion", "sexoctogintillion", "septenoctogintillion", "octooctogintillion", "novemoctogintillion", "nonagintillion", "unnonagintillion", "duononagintillion", "trenonagintillion", "quattuornonagintillion", "quinnonagintillion", "sexnonagintillion", "septennonagintillion", "octononagintillion", "novemnonagintillion", "centillion", "uncentillion", "duocentillion", "trecentillion", "quattuorcentillion", "quincentillion", "sexcentillion", "septencentillion", "octocentillion", "novemcentillion", "duocentillion", "treduocentillion", "quattuorduocentillion", "quinduocentillion", "sexduocentillion", "septenduocentillion", "octoduocentillion", "novemduocentillion", "trecentillion", "quattuortrecentillion", "quintrencentillion", "sextrencentillion", "septentrencentillion", "octotrencentillion", "novemtrencentillion"];
+            List<string> words = [];
             int magnitudeIndex = parts.Length - 2;
             for (int i = 0; i < parts.Length; i++, magnitudeIndex--)
             {
@@ -104,30 +104,26 @@ namespace Lunariens_Mental_Math_Trainer
         /// <param name="volumeThresholdDb">Volume threshold in decibels. Values lower represent quieter sounds.</param>
         public static void TrimAudioEnd(string inputFilePath, string outputFilePath, float volumeThresholdDb)
         {
-            using (var reader = new AudioFileReader(inputFilePath))
+            using var reader = new AudioFileReader(inputFilePath);
+            float[] buffer = new float[1024];
+            TimeSpan lastNonSilentPosition = reader.TotalTime;
+
+            while (reader.Position < reader.Length)
             {
-                float[] buffer = new float[1024];
-                TimeSpan lastNonSilentPosition = reader.TotalTime;
-
-                while (reader.Position < reader.Length)
+                int samplesRead = reader.Read(buffer, 0, buffer.Length);
+                float volumeDb = GetRmsVolume(buffer, samplesRead);
+                if (volumeDb > volumeThresholdDb)
                 {
-                    int samplesRead = reader.Read(buffer, 0, buffer.Length);
-                    float volumeDb = GetRmsVolume(buffer, samplesRead);
-                    if (volumeDb > volumeThresholdDb)
-                    {
-                        lastNonSilentPosition = reader.CurrentTime;
-                    }
+                    lastNonSilentPosition = reader.CurrentTime;
                 }
+            }
 
-                using (var writer = new WaveFileWriter(outputFilePath, reader.WaveFormat))
-                {
-                    reader.Position = 0;
-                    while (reader.CurrentTime <= lastNonSilentPosition && reader.Position < reader.Length)
-                    {
-                        int samplesRead = reader.Read(buffer, 0, buffer.Length);
-                        writer.WriteSamples(buffer, 0, samplesRead);
-                    }
-                }
+            using var writer = new WaveFileWriter(outputFilePath, reader.WaveFormat);
+            reader.Position = 0;
+            while (reader.CurrentTime <= lastNonSilentPosition && reader.Position < reader.Length)
+            {
+                int samplesRead = reader.Read(buffer, 0, buffer.Length);
+                writer.WriteSamples(buffer, 0, samplesRead);
             }
         }
 
@@ -265,15 +261,13 @@ namespace Lunariens_Mental_Math_Trainer
 
         public static void PlaySound(string fileName)
         {
-            using (var audioFile = new AudioFileReader("speech.wav"))
-            using (var outputDevice = new WaveOutEvent())
+            using var audioFile = new AudioFileReader("speech.wav");
+            using var outputDevice = new WaveOutEvent();
+            outputDevice.Init(audioFile);
+            outputDevice.Play();
+            while (outputDevice.PlaybackState == PlaybackState.Playing)
             {
-                outputDevice.Init(audioFile);
-                outputDevice.Play();
-                while (outputDevice.PlaybackState == PlaybackState.Playing)
-                {
-                    Thread.Sleep(5);
-                }
+                Thread.Sleep(5);
             }
         }
 
@@ -477,11 +471,11 @@ namespace Lunariens_Mental_Math_Trainer
         }
         public static void OpenStatisticScreen(string digitCode, Modes mode)
         {
-            if (digitCode.Contains("/")) //replace the slash with a different character so the file can be found. the file name cannot contain a slash.
+            if (digitCode.Contains('/')) //replace the slash with a different character so the file can be found. the file name cannot contain a slash.
             {
                 digitCode = digitCode.Replace("/", "÷");
             }
-            else if (digitCode.Contains("*")) //replace the asterisk with a different character so the file can be found. the file name cannot contain an asterisk.
+            else if (digitCode.Contains('*')) //replace the asterisk with a different character so the file can be found. the file name cannot contain an asterisk.
             {
                 digitCode = digitCode.Replace("*", "x");
             }
@@ -501,7 +495,7 @@ namespace Lunariens_Mental_Math_Trainer
                 // menu for viewing the statistics follows.
 
                 //Print out the statistics in a table.
-                ConsoleTable table = new ConsoleTable("Problem", "Your solution", "Solve time", "Date", "Correct?");
+                ConsoleTable table = new("Problem", "Your solution", "Solve time", "Date", "Correct?");
                 foreach (Statistic record in recordsArray)
                 {
                     string boolWord;
@@ -539,7 +533,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 digitCode = digitCode.Replace("/", "÷");
             }
-            else if (digitCode.Contains("*"))
+            else if (digitCode.Contains('*'))
             {
                 digitCode = digitCode.Replace("*", "x");
             }
@@ -549,7 +543,7 @@ namespace Lunariens_Mental_Math_Trainer
             if (File.Exists(path)) return;
 
 
-            StreamWriter sw = new StreamWriter(path, true);
+            StreamWriter sw = new(path, true);
             var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
             csv.WriteHeader<Statistic>();
             csv.NextRecord();
@@ -755,7 +749,7 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     OutputProblem(problem, speechSynth);
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    if (mode == Modes.Speech)
+                    if (mode == Speech)
                     {
                         Console.WriteLine("Type \"exit\" to return to the main menu. Enter nothing to repeat the problem");
                     }
