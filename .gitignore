@@ -5,6 +5,9 @@
 !Lunarien-s Mental Math Trainer.csproj
 !Program.cs
 !SessionDefinition.cs
+!Training.cs
+!FileHandler.cs
+!Formatting.cs
 !/resources/
 !/resources/**
 !/README images/

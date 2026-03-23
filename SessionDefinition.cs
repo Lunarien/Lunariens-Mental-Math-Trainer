@@ -4,6 +4,43 @@ using PeterO.Numbers;
 
 namespace Lunariens_Mental_Math_Trainer
 {
+    public static class Helpers
+    {
+        public enum Modes
+    {
+        Exit = -1,
+        Text = 0,
+        Speech = 1
+    }
+        public static string? GetSessionDefinitionStr()
+        {
+            Console.WriteLine("Enter digit code(s) and (optionally) the amount of problems. Enter \"help\" to get more info.");
+
+            while (true)
+            {
+                Console.Write("Digit code(s): ");
+                string usrDigitCodeInput = Console.ReadLine();
+
+                if (usrDigitCodeInput == "exit")
+                {
+                    return null;
+                }
+                else if (usrDigitCodeInput == "help")
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    using (StreamReader reader = new("./resources/dc-help.txt"))
+                    {
+                        Console.WriteLine(reader.ReadToEnd());
+                    }
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    return usrDigitCodeInput;
+                }
+            }
+        }
+    }
     public class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
     {
         public EInteger DigitsX = digitsX;
