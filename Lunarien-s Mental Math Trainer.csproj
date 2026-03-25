@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-  <PathMap>$(MSBuildProjectDirectory)=C:\src</PathMap>
+  <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
   </PropertyGroup>
 
   <ItemGroup>
