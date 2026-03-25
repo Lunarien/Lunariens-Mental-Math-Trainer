@@ -17,8 +17,8 @@ namespace Lunariens_Mental_Math_Trainer
         {
             int[] possibleModes = [0, 1];
             Console.WriteLine("Choose a mode:");
-            Console.WriteLine("0 - Text mode");
-            Console.WriteLine("1 - Text to speech mode");
+            Console.WriteLine("1 - Text mode");
+            Console.WriteLine("2 - Text to speech mode");
             Console.WriteLine("(Type \"exit\" to return to the main menu.)");
             while (true)
             {
@@ -34,6 +34,8 @@ namespace Lunariens_Mental_Math_Trainer
                     return Exit;
                 }
                 else if (int.TryParse(input, out int number))
+                {
+                    number -= 1;
                     if (possibleModes.Contains(number))
                     {
                         Modes selectedMode = (Modes)number;
@@ -44,6 +46,7 @@ namespace Lunariens_Mental_Math_Trainer
                         Console.WriteLine("Error: Invalid mode");
                         continue;
                     }
+                }
             }
         }
         public static readonly Dictionary<string, string> rootMap = new()
