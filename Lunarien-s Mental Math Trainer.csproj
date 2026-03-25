@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     
   <PropertyGroup>
-    <LangVersion>12</LangVersion>
+    <LangVersion>14</LangVersion>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>Lunarien_s_Mental_Math_Trainer</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
