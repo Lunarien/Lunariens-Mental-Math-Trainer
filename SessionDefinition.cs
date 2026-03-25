@@ -279,9 +279,9 @@ namespace Lunariens_Mental_Math_Trainer
 
             for (int i = 0; i < definWords.Length - problemCountCount; i++)
             {
-                DigitCode singleDC = ParseSingleRaw(definWords[i]);
                 try
                 {
+                    DigitCode singleDC = ParseSingleRaw(definWords[i]);
                     digitCodes.Add(singleDC);
                 }
                 catch (FormatException)
