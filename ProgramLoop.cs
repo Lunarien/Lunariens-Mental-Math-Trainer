@@ -8,7 +8,7 @@ using System.Speech.Synthesis;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public static class Menus
+    public static class Core
     {
         public static void ProgramLoop(IFormatProvider ifp, Stopwatch sw, Modes mode, SpeechSynthesizer synth)
         {

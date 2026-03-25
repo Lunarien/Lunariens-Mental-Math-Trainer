@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Speech.Synthesis;
 using static Lunariens_Mental_Math_Trainer.Formatting;
-using static Lunariens_Mental_Math_Trainer.Menus;
+using static Lunariens_Mental_Math_Trainer.Core;
 
 namespace Lunariens_Mental_Math_Trainer
 {
