@@ -10,7 +10,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-  <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+    <Configuration>Debug</Configuration>
+    <DebugType>embedded</DebugType> <!-- or "full" -->
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
