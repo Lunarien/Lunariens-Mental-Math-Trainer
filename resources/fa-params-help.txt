@@ -1,0 +1,6 @@
+Flash Anzan parameters are to be defined in the following format:
+X Y Z
+X is the amount of digits of each number.
+Y is the amount of numbers to be displayed.
+Z is the time between numbers (in milliseconds)
+Example: 2 10 900

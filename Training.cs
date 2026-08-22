@@ -15,10 +15,11 @@ namespace Lunariens_Mental_Math_Trainer
     {
         public static Modes GetMode()
         {
-            int[] possibleModes = [0, 1];
+            int[] possibleModes = [0, 1, 2];
             Console.WriteLine("Choose a mode:");
             Console.WriteLine("1 - Text mode");
             Console.WriteLine("2 - Text to speech mode");
+            Console.WriteLine("3 - Flash anzan mode");
             Console.WriteLine("(Type \"exit\" to return to the main menu.)");
             while (true)
             {

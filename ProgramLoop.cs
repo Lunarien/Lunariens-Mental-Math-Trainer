@@ -38,8 +38,11 @@ namespace Lunariens_Mental_Math_Trainer
                     GoodConsoleClear();
 
                     DigitCode[] usrDCs = [];
-                    bool gettingInput = true;
                     string? usrSessionDefinition = null;
+                    bool gettingInput = true;
+
+                    if (mode == Modes.Text || mode == Modes.Speech)
+                    {
                     while (gettingInput)
                     {
                         usrSessionDefinition = GetSessionDefinitionStr();
@@ -75,8 +78,13 @@ namespace Lunariens_Mental_Math_Trainer
                         InitStatistic(dc.ToString(), mode);
                     }
 
-
                     OpenTrainingScreen(sw, ifp, usrDCs, synth, mode, SessionConfiguration.problemCount);
+                    }
+                    else if (mode == Modes.FlashAnzan)
+                    {
+                        FlashAnzanParameters flashParams = AnzanParamManager.Get();
+                        FlashAnzan.OpenWindow(flashParams);
+                    }
                 }
                 else if (usrChoice == "2") //view stats from a list
                 {

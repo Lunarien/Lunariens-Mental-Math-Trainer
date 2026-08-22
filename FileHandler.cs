@@ -11,7 +11,8 @@ namespace Lunariens_Mental_Math_Trainer
     {
         Exit = -1,
         Text = 0,
-        Speech = 1
+        Speech = 1,
+        FlashAnzan = 2
     }
     public static class FileHandler
     {
