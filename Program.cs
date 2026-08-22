@@ -22,11 +22,12 @@ namespace Lunariens_Mental_Math_Trainer
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             Stopwatch sw = new();
             IFormatProvider ifp = new CultureInfo("en-US");
-            Console.ForegroundColor = ConsoleColor.White;
             SpeechSynthesizer synth = GetUSVoice();
-
+            
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Welcome to LMMT! (Lunarien's Mental Math Trainer)");
-            ProgramLoop(ifp, sw, mode, synth);
+            Console.ForegroundColor = ConsoleColor.White;
+            ProgramLoop(ifp, sw, synth);
         }
     }
 }
