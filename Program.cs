@@ -17,8 +17,6 @@ namespace Lunariens_Mental_Math_Trainer
 
     public class Program
     {
-        internal static Modes mode;
-
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;

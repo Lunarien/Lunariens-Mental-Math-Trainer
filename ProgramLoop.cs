@@ -10,7 +10,7 @@ namespace Lunariens_Mental_Math_Trainer
 {
     public static class Core
     {
-        public static void ProgramLoop(IFormatProvider ifp, Stopwatch sw, Modes mode, SpeechSynthesizer synth)
+        public static void ProgramLoop(IFormatProvider ifp, Stopwatch sw, SpeechSynthesizer synth)
         {
             while (true) //when the program starts. this loop will ensure the existence of the main menu with its functionality.
             {
@@ -29,7 +29,7 @@ namespace Lunariens_Mental_Math_Trainer
                 if (usrChoice == "1")
                 {
                     GoodConsoleClear();
-                    mode = GetMode(); //writing to the global variable mode. it is used for determining the output type. (text or speech)
+                    Modes mode = GetMode();
                     if (mode == Exit) //if user wants to exit
                     {
                         GoodConsoleClear();
@@ -43,42 +43,42 @@ namespace Lunariens_Mental_Math_Trainer
 
                     if (mode == Modes.Text || mode == Modes.Speech)
                     {
-                    while (gettingInput)
-                    {
-                        usrSessionDefinition = GetSessionDefinitionStr();
-                        if (usrSessionDefinition != null)
+                        while (gettingInput)
                         {
-                            try
+                            usrSessionDefinition = GetSessionDefinitionStr();
+                            if (usrSessionDefinition != null)
                             {
-                                Parser parser = new(usrSessionDefinition);
-                                usrDCs = parser.Parse(out SessionConfiguration.problemCount);
+                                try
+                                {
+                                    Parser parser = new(usrSessionDefinition);
+                                    usrDCs = parser.Parse(out SessionConfiguration.problemCount);
+                                    gettingInput = false;
+                                }
+                                catch (FormatException e)
+                                {
+                                    GoodConsoleClear();
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine(e.Message);
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                }
+                            }
+                            else
+                            {
                                 gettingInput = false;
                             }
-                            catch (FormatException e)
-                            {
-                                GoodConsoleClear();
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                Console.WriteLine(e.Message);
-                                Console.ForegroundColor = ConsoleColor.White;
-                            }
                         }
-                        else
+                        if (usrSessionDefinition == null)
                         {
-                            gettingInput = false;
+                            GoodConsoleClear();
+                            continue;
                         }
-                    }
-                    if (usrSessionDefinition == null)
-                    {
-                        GoodConsoleClear();
-                        continue;
-                    }
 
-                    foreach (DigitCode dc in usrDCs)
-                    {
-                        InitStatistic(dc.ToString(), mode);
-                    }
+                        foreach (DigitCode dc in usrDCs)
+                        {
+                            InitStatistic(dc.ToString(), mode);
+                        }
 
-                    OpenTrainingScreen(sw, ifp, usrDCs, synth, mode, SessionConfiguration.problemCount);
+                        OpenTrainingScreen(sw, ifp, usrDCs, synth, mode, SessionConfiguration.problemCount);
                     }
                     else if (mode == Modes.FlashAnzan)
                     {
