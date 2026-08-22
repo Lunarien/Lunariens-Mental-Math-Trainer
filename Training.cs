@@ -234,6 +234,15 @@ namespace Lunariens_Mental_Math_Trainer
             bool training = true;
             while (training)
             {
+                if (digitCodes.Length == 0)
+                {
+                    GoodConsoleClear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Entered text has no valid digit codes!");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                }
+
                 int dcChoice = random.Next(0, digitCodes.Length);
 
                 ctx = new(digitCodes[dcChoice].Decimals, ERounding.HalfDown, EInteger.FromInt32(-10000), EInteger.FromInt32(10000), true);

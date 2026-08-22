@@ -226,6 +226,8 @@ namespace Lunariens_Mental_Math_Trainer
                 }
                 else if ("+-*/^R".Contains(groupArray[i].ToString()) && i != 4) //operator
                 {
+                    if (groupArray[i].Length == 0)
+                        throw new FormatException("Digit code isnt complete!");
                     operation = groupArray[i].ToString()[0];
                 }
                 else if (validNumbers.IsMatch(groupArray[i].ToString()))
