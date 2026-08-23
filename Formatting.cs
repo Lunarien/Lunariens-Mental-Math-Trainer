@@ -3,9 +3,9 @@ using NAudio.Wave;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public static class Formatting
+    internal static class Formatting
     {
-        public static SpeechSynthesizer GetUSVoice()
+        internal static SpeechSynthesizer GetUSVoice()
         {
             SpeechSynthesizer synth = new();
             foreach (InstalledVoice voice in synth.GetInstalledVoices())
@@ -19,7 +19,7 @@ namespace Lunariens_Mental_Math_Trainer
             Console.WriteLine("Unable to find en-US voice. Using default voice (not recommended at all unless your system language is some form of english).");
             return synth;
         }
-        public static string AddCommas(string number)
+        internal static string AddCommas(string number)
         {
             if (number.Length <= 3)
                 return number;
@@ -29,7 +29,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return number;
         }
-        public static string ToSuperScript(string number)
+        internal static string ToSuperScript(string number)
         {
             string sups = "⁰¹²³⁴⁵⁶⁷⁸⁹";
             string result = "";
@@ -40,7 +40,7 @@ namespace Lunariens_Mental_Math_Trainer
             return result;
         }
 
-        public static string ToSuperScript(int number)
+        internal static string ToSuperScript(int number)
         {
             string sups = "⁰¹²³⁴⁵⁶⁷⁸⁹";
             string result = "";
@@ -50,7 +50,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return result;
         }
-        public static string SuperscriptToNum(string sup)
+        internal static string SuperscriptToNum(string sup)
         {
             string sups = "⁰¹²³⁴⁵⁶⁷⁸⁹";
             string result = "";
@@ -67,7 +67,7 @@ namespace Lunariens_Mental_Math_Trainer
         /// <param name="inputFilePath">Path to the input audio file.</param>
         /// <param name="outputFilePath">Path to save the trimmed audio file.</param>
         /// <param name="volumeThresholdDb">Volume threshold in decibels. Values lower represent quieter sounds.</param>
-        public static void TrimAudioEnd(string inputFilePath, string outputFilePath, float volumeThresholdDb)
+        internal static void TrimAudioEnd(string inputFilePath, string outputFilePath, float volumeThresholdDb)
         {
             using var reader = new AudioFileReader(inputFilePath);
             float[] buffer = new float[1024];
@@ -103,7 +103,7 @@ namespace Lunariens_Mental_Math_Trainer
             return 20 * (float)Math.Log10(Math.Sqrt(mean) + float.Epsilon);
         }
         
-        public static string NumToWords(string number, char magnitudeSep)
+        internal static string NumToWords(string number, char magnitudeSep)
         {
             string[] parts = number.Split(magnitudeSep);
             for (int i = 0; i < parts.Length; i++)
@@ -126,8 +126,8 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return string.Join(" ", words).Trim();
         }
-        
-        public static void GoodConsoleClear()
+
+        internal static void GoodConsoleClear()
         {   // Clearing the console doesn't work well in case of Windows Terminal. This abomination is a workaround for that.
             Console.Clear();
             Console.WriteLine("\f\u001bc\x1b[3J");

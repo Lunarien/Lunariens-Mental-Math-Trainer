@@ -6,16 +6,16 @@ using static Lunariens_Mental_Math_Trainer.Core;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public static class Configuration // this is to be saved and loaded to/from a config file in the future
+    internal static class Configuration // this is to be saved and loaded to/from a config file in the future
     {
         internal static int SpeechDelay = 500;
     }
-    public static class SessionConfiguration
+    internal static class SessionConfiguration
     {
         internal static int? problemCount = null;
     }
 
-    public class Program
+    internal class Program
     {
         static void Main(string[] args)
         {

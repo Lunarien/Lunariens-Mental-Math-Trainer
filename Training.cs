@@ -13,7 +13,7 @@ namespace Lunariens_Mental_Math_Trainer
 {
     class Training
     {
-        public static Modes GetMode()
+        internal static Modes GetMode()
         {
             int[] possibleModes = [0, 1, 2];
             Console.WriteLine("Choose a mode:");
@@ -50,7 +50,7 @@ namespace Lunariens_Mental_Math_Trainer
                 }
             }
         }
-        public static readonly Dictionary<string, string> rootMap = new()
+        private static readonly Dictionary<string, string> rootMap = new()
         {
             { "3", "cube root of " },
             { "4", "fourth root of " },
@@ -60,7 +60,7 @@ namespace Lunariens_Mental_Math_Trainer
             { "8", "eighth root of " },
             { "9", "ninth root of " }
         };
-        public static void PlaySound(string fileName)
+        internal static void PlaySound(string fileName)
         {
             using var audioFile = new AudioFileReader("speech.wav");
             using var outputDevice = new WaveOutEvent();
@@ -71,7 +71,7 @@ namespace Lunariens_Mental_Math_Trainer
                 Thread.Sleep(5);
             }
         }
-        public static void OutputProblem(string problem, SpeechSynthesizer synth, Modes mode)
+        private static void OutputProblem(string problem, SpeechSynthesizer synth, Modes mode)
         {
 
             if (mode is Text) //text mode
@@ -201,7 +201,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
         }
 
-        public static EInteger RandomEInt(EInteger bottom, EInteger top)
+        private static EInteger RandomEInt(EInteger bottom, EInteger top)
         {
             if (bottom > top)
             {
@@ -220,7 +220,7 @@ namespace Lunariens_Mental_Math_Trainer
             return result;
         }
 
-        public static void OpenTrainingScreen(Stopwatch stopWatch, IFormatProvider ifp, DigitCode[] digitCodes, SpeechSynthesizer speechSynth, Modes mode, int? problemCount = null)
+        internal static void OpenTrainingScreen(Stopwatch stopWatch, IFormatProvider ifp, DigitCode[] digitCodes, SpeechSynthesizer speechSynth, Modes mode, int? problemCount = null)
         {
             GoodConsoleClear();
             EContext ctx;

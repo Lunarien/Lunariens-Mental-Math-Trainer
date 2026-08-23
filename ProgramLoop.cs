@@ -8,9 +8,9 @@ using System.Speech.Synthesis;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public static class Core
+    internal static class Core
     {
-        public static void ProgramLoop(IFormatProvider ifp, Stopwatch sw, SpeechSynthesizer synth)
+        internal static void ProgramLoop(IFormatProvider ifp, Stopwatch sw, SpeechSynthesizer synth)
         {
             while (true) //when the program starts. this loop will ensure the existence of the main menu with its functionality.
             {

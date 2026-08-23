@@ -4,15 +4,15 @@ using PeterO.Numbers;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public static class Helpers
+    internal static class Helpers
     {
-        public enum Modes
+        internal enum Modes
     {
         Exit = -1,
         Text = 0,
         Speech = 1
     }
-        public static string? GetSessionDefinitionStr()
+        internal static string? GetSessionDefinitionStr()
         {
             Console.WriteLine("Enter digit code(s) and (optionally) the amount of problems. Enter \"help\" to get more info.");
 
@@ -41,18 +41,18 @@ namespace Lunariens_Mental_Math_Trainer
             }
         }
     }
-    public class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
+    internal class DigitCode(int digitsX = -1, int digitsY = -1, int? lowerBoundX = null, int? upperBoundX = null, int? lowerBoundY = null, int? upperBoundY = null, char operation = '\0', int decimals = 0)
     {
-        public EInteger DigitsX = digitsX;
-        public EInteger DigitsY = digitsY;
-        public EInteger? LowerBoundX = lowerBoundX;
-        public EInteger? UpperBoundX = upperBoundX;
-        public EInteger? LowerBoundY = lowerBoundY;
-        public EInteger? UpperBoundY = upperBoundY;
-        public char Operation = operation;
-        public EInteger Decimals = decimals; //optional
+        internal EInteger DigitsX = digitsX;
+        internal EInteger DigitsY = digitsY;
+        internal EInteger? LowerBoundX = lowerBoundX;
+        internal EInteger? UpperBoundX = upperBoundX;
+        internal EInteger? LowerBoundY = lowerBoundY;
+        internal EInteger? UpperBoundY = upperBoundY;
+        internal char Operation = operation;
+        internal EInteger Decimals = decimals; //optional
 
-        public DigitCode[]? Get()
+        internal DigitCode[]? Get()
         {
             string dcPattern = @"([1-9]\d*)(\+|\-|\*|\/|R|\^)([1-9]\d*)(?:\.([1-9]\d*))?"; //regex pattern to match digit codes
             Regex dcRegex = new(dcPattern);
@@ -140,7 +140,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
         }
     }
-    public class Parser(string sessionDefinition)
+    internal class Parser(string sessionDefinition)
     {
         private string[] SplitSessionDefinition(string sessionDefinition)
         {
@@ -266,7 +266,7 @@ namespace Lunariens_Mental_Math_Trainer
         }
 
 
-        public DigitCode[] Parse(out int? problemCount)
+        internal DigitCode[] Parse(out int? problemCount)
         {
             string[] definWords = SplitSessionDefinition(sessionDefinition);
             List<DigitCode> digitCodes = [];

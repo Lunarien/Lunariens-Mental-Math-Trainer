@@ -7,16 +7,16 @@ using static Lunariens_Mental_Math_Trainer.Formatting;
 
 namespace Lunariens_Mental_Math_Trainer
 {
-    public enum Modes
+    internal enum Modes
     {
         Exit = -1,
         Text = 0,
         Speech = 1,
         FlashAnzan = 2
     }
-    public static class FileHandler
+    internal static class FileHandler
     {
-        public class Statistic
+        internal class Statistic
         {
             public string? Problem { get; set; }
             public string? UsrSolution { get; set; }
@@ -24,7 +24,7 @@ namespace Lunariens_Mental_Math_Trainer
             public DateTime Date { get; set; }
             public bool Correctness { get; set; }
         }
-        public static void InitStatistic(string digitCode, Modes mode)
+        internal static void InitStatistic(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/'))
             {
@@ -48,7 +48,7 @@ namespace Lunariens_Mental_Math_Trainer
             sw.Close();
         }
 
-        public static void SaveStatistic(string statName, string problem, string usrSolution, double time, DateTime date, bool correctness, Modes mode)
+        internal static void SaveStatistic(string statName, string problem, string usrSolution, double time, DateTime date, bool correctness, Modes mode)
         {
             string path = $@"..\stats\{statName}m{(int)mode}.csv";
             path = path.Replace('*', 'x'); //replace * with x because windows doesn't allow * in file names
@@ -70,7 +70,7 @@ namespace Lunariens_Mental_Math_Trainer
                 csv.NextRecord();
             }
         }
-        public static void OpenStatisticGraph(string digitCode, Modes mode)
+        internal static void OpenStatisticGraph(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/'))
             {
@@ -139,7 +139,7 @@ namespace Lunariens_Mental_Math_Trainer
             pltWindow.ShowDialog();
         }
 
-        public static void OpenStatisticScreen(string digitCode, Modes mode)
+        internal static void OpenStatisticScreen(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/')) //replace the slash with a different character so the file can be found. the file name cannot contain a slash.
             {
