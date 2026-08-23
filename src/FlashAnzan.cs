@@ -32,7 +32,7 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 Console.Write(">>> ");
                 string paramInput = Console.ReadLine();
-                if (paramInput.ToLower() == "help")
+                if (paramInput.ToLower().Trim() == "help")
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     using (StreamReader reader = new("./resources/fa-params-help.txt"))

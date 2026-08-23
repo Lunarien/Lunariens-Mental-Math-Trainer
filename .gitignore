@@ -10,6 +10,8 @@
 !Training.cs
 !FileHandler.cs
 !Formatting.cs
+!/src/
+!/src/**
 !/resources/
 !/resources/**
 !/README images/
