@@ -109,7 +109,7 @@ namespace Lunariens_Mental_Math_Trainer
             float remainingFadeTime = 0.0f;
             
             string num = "?";
-            long[] numSequence = new long[parameters.count];
+            long[]? numSequence = null;
             long correctAnswer = 0;
             string userInput = "";
             bool? lastAnswerCorrect = null;
@@ -124,6 +124,8 @@ namespace Lunariens_Mental_Math_Trainer
                     case WindowState.Start:
                         Raylib.DrawTextEx(font, "[X] Exit ", new Vector2(0, 494), 45, 1, Color.White);
                         Raylib.DrawTextEx(font, "[Space] Start", new Vector2(320, 494), 45, 1, Color.White);
+                        if (numSequence != null)
+                            Raylib.DrawTextEx(font, "[R] Replay sequence", new Vector2(0, 0), 45, 1, Color.White);
 
                         if (Raylib.IsKeyPressed(KeyboardKey.Space))
                         {
@@ -140,6 +142,21 @@ namespace Lunariens_Mental_Math_Trainer
                                 correctAnswer += numSequence[i];
                             }
 
+                            num = numSequence[0].ToString();
+                            state = WindowState.Flashing;
+
+                            startWindowLife = Raylib.GetTime() * 1000;
+                            recentStartWindowLife = startWindowLife; // marker A;
+                            remainingFadeTime = 1500;
+                            Raylib.PlaySound(fxIntro);
+                        }
+                        else if (Raylib.IsKeyPressed(KeyboardKey.R) && numSequence != null)
+                        {
+                            Raylib.SetExitKey(KeyboardKey.Null);
+                            schedulePosition = 0;
+                            lastBlip = -1;
+                            userInput = "";
+                            
                             num = numSequence[0].ToString();
                             state = WindowState.Flashing;
 
