@@ -91,9 +91,14 @@ namespace Lunariens_Mental_Math_Trainer
                     GoodConsoleClear();
                     string[] files = Array.Empty<string>();
                     //check if there are any files. list them if so.
-                    if (Directory.Exists("../stats"))
+                    if (StatFolderExists())
                     {
-                        files = Directory.GetFiles("../stats");
+                        files = Directory.GetFiles(GetStatDirectory());
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            int fileNameIndex = files[i].LastIndexOf("\\") + 1;
+                            files[i] = files[i][fileNameIndex..];
+                        }
                     }
                     else
                     {
@@ -113,29 +118,21 @@ namespace Lunariens_Mental_Math_Trainer
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             for (int i = 0; i < files.Length; i++)
                             {
-                                Console.WriteLine($"{i + 1}) {files[i][9..]}");
+                                Console.WriteLine($"{i + 1}) {files[i]}");
                             }
                             Console.ForegroundColor = ConsoleColor.White;
                             Console.Write("Statistic to open: ");
                             string usrFileChoice = Console.ReadLine();
 
                             int fileMode = -1;
-
+                            string file = files[int.Parse(usrFileChoice) - 1];
+                            string filePath = Path.Combine(GetStatDirectory(), file);
 
                             // retrieve the mode from the file name. This is used in the OpenStatistic method below.
                             if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                             {
-                                if (files[int.Parse(usrFileChoice) - 1][9..].Length == 9)
-                                {  //length 9 comes from the digit code of length 5, including the mode specifier (m0 || m1) and then the file extension. (.csv)
-                                    fileMode = int.Parse(files[int.Parse(usrFileChoice) - 1][9..][4].ToString());
-                                }
-                                else
-                                {
-                                    int modeIndex = files[int.Parse(usrFileChoice) - 1].IndexOf('m');
-                                    string file = files[int.Parse(usrFileChoice) - 1];
-                                    fileMode = int.Parse(file[modeIndex + 1].ToString());
-                                }
-
+                                int modeIndex = file.LastIndexOf("m") + 1;
+                                fileMode = int.Parse(file[modeIndex].ToString());
                             }
                             else if (usrFileChoice == "exit")
                             {
@@ -160,9 +157,7 @@ namespace Lunariens_Mental_Math_Trainer
                             {
                                 if (int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                                 {
-                                    string file = files[int.Parse(usrFileChoice) - 1];
-
-                                    string[] statLines = File.ReadAllLines(files[int.Parse(usrFileChoice) - 1]);
+                                    string[] statLines = File.ReadAllLines(filePath);
                                     if (statLines.Length == 1)
                                     {
                                         GoodConsoleClear();
@@ -171,7 +166,7 @@ namespace Lunariens_Mental_Math_Trainer
                                         Console.ForegroundColor = ConsoleColor.White;
                                         continue;
                                     }
-                                    string statDigitCode = file[9..^6];
+                                    string statDigitCode = file[..3];
                                     OpenStatisticGraph(statDigitCode, (Modes)fileMode);
                                     inOption2 = false;
                                 }
@@ -198,9 +193,9 @@ namespace Lunariens_Mental_Math_Trainer
                 else if (usrChoice == "3")
                 {
                     string[] files = Array.Empty<string>();
-                    if (Directory.Exists("../stats"))
+                    if (StatFolderExists())
                     {
-                        files = Directory.GetFiles("../stats");
+                        files = Directory.GetFiles(GetStatDirectory());
                     }
                     else
                     {
@@ -232,9 +227,14 @@ namespace Lunariens_Mental_Math_Trainer
                     // list existing statistic files
 
                     string[] files = Array.Empty<string>();
-                    if (Directory.Exists("../stats"))
+                    if (StatFolderExists())
                     {
-                        files = Directory.GetFiles("../stats");
+                        files = Directory.GetFiles(GetStatDirectory());
+                        for (int i = 0; i < files.Length; i++)
+                        {
+                            int fileNameIndex = files[i].LastIndexOf("\\") + 1;
+                            files[i] = files[i][fileNameIndex..];
+                        }
                     }
                     else
                     {
@@ -251,7 +251,8 @@ namespace Lunariens_Mental_Math_Trainer
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         for (int i = 0; i < files.Length; i++)
                         {
-                            Console.WriteLine($"{i + 1}) {files[i][9..]}");
+                            int digitCodeStartIndex = files[i].LastIndexOf("\\") + 1;
+                            Console.WriteLine($"{i + 1}) {files[i][digitCodeStartIndex..]}");
                         }
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.Write("Statistic to open: ");
@@ -263,6 +264,10 @@ namespace Lunariens_Mental_Math_Trainer
                         if (int.TryParse(usrFileChoice, out _) && int.Parse(usrFileChoice) <= files.Length && int.Parse(usrFileChoice) > 0)
                         {
                             string file = files[int.Parse(usrFileChoice) - 1];
+
+                            int digitCodeStartIndex = file.LastIndexOf("\\") + 1;
+                            file = file[digitCodeStartIndex..];
+                            
                             int modeIndex = file.IndexOf("m") + 1;
                             fileMode = (Modes)int.Parse(file[modeIndex].ToString());
                         }
@@ -286,7 +291,9 @@ namespace Lunariens_Mental_Math_Trainer
                             {
                                 string file = files[int.Parse(usrFileChoice) - 1];
 
-                                string statDigitCode = file[9..^6];
+                                int digitCodeStartIndex = file.LastIndexOf("\\") + 1;
+                                int digitCodeEndIndex = file.LastIndexOf("m");
+                                string statDigitCode = file[digitCodeStartIndex..digitCodeEndIndex];
                                 GoodConsoleClear();
                                 OpenStatisticScreen(statDigitCode, fileMode);
                             }
@@ -303,9 +310,9 @@ namespace Lunariens_Mental_Math_Trainer
                 else if (usrChoice == "5") // view console statistics for specific digit code
                 {
                     string[] files = Array.Empty<string>();
-                    if (Directory.Exists("../stats"))
+                    if (StatFolderExists())
                     {
-                        files = Directory.GetFiles("../stats");
+                        files = Directory.GetFiles(GetStatDirectory());
                     }
                     else
                     {

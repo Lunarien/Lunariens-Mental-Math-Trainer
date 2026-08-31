@@ -24,6 +24,32 @@ namespace Lunariens_Mental_Math_Trainer
             public DateTime Date { get; set; }
             public bool Correctness { get; set; }
         }
+        internal static bool StatFolderExists()
+        {
+            string markerLocation = Path.Combine(AppContext.BaseDirectory, "installed.marker");
+            if (File.Exists(markerLocation) && Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LMMT")))
+            {
+                return true;
+            }
+            else if (!File.Exists(markerLocation) && Directory.Exists("..\\stats"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        internal static string GetStatDirectory()
+        {
+            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "installed.marker")))
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LMMT");
+            }
+            else
+            {
+                return Path.Combine(AppContext.BaseDirectory, "..\\stats");
+            }
+        }
+
         internal static void InitStatistic(string digitCode, Modes mode)
         {
             if (digitCode.Contains('/'))
@@ -34,13 +60,11 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 digitCode = digitCode.Replace("*", "x");
             }
-            string statsFolder = File.Exists("installed.marker") ?
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LMMT") :
-                Path.Combine(AppContext.BaseDirectory, "../stats");
+            string statsFolder = GetStatDirectory();
 
-            string dirPath = statsFolder;
-            string path = $@"{dirPath}{digitCode}m{(int)mode}.csv";
-            if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
+            
+            string path = $@"{statsFolder}\{digitCode}m{(int)mode}.csv";
+            if (!Directory.Exists(statsFolder)) Directory.CreateDirectory(statsFolder);
             if (File.Exists(path)) return;
 
 
@@ -54,9 +78,7 @@ namespace Lunariens_Mental_Math_Trainer
 
         internal static void SaveStatistic(string statName, string problem, string usrSolution, double time, DateTime date, bool correctness, Modes mode)
         {
-            string path = File.Exists("installed.marker") ?
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LMMT") :
-                Path.Combine(AppContext.BaseDirectory, "../stats");
+            string path = GetStatDirectory() + $"\\{statName}m{(int)mode}.csv";
             
             path = path.Replace('*', 'x'); //replace * with x because windows doesn't allow * in file names
 
@@ -79,9 +101,7 @@ namespace Lunariens_Mental_Math_Trainer
         }
         internal static void OpenStatisticGraph(string digitCode, Modes mode)
         {
-            string statsFolder = File.Exists("installed.marker") ?
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LMMT") :
-                Path.Combine(AppContext.BaseDirectory, "../stats");
+            string statsFolder = GetStatDirectory();
 
             if (digitCode.Contains('/'))
             {
@@ -152,9 +172,7 @@ namespace Lunariens_Mental_Math_Trainer
 
         internal static void OpenStatisticScreen(string digitCode, Modes mode)
         {
-            string statsFolder = File.Exists("installed.marker") ?
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LMMT") :
-                Path.Combine(AppContext.BaseDirectory, "../stats");
+            string statsFolder = GetStatDirectory();
             
             if (digitCode.Contains('/')) //replace the slash with a different character so the file can be found. the file name cannot contain a slash.
             {
