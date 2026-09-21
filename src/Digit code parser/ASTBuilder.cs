@@ -1,3 +1,4 @@
+using PeterO.Numbers;
 using static Lunariens_Mental_Math_Trainer.Tokenizer;
 
 namespace Lunariens_Mental_Math_Trainer
@@ -19,10 +20,11 @@ namespace Lunariens_Mental_Math_Trainer
         }
         internal abstract record Expression
         {
-            internal record Number(int Value) : Expression;
+            internal record Number(int Value, bool literal = false) : Expression;
             internal record Unary(UnaryOp Op, Expression Operand) : Expression;
             internal record Binary(BinaryOp Op, Expression Left, Expression Right, int? Precision = null) : Expression;
-            internal record Range(int Start, int End) : Expression;
+            internal record Range(EInteger Start, EInteger End) : Expression;
+            internal record Parentheses(Expression Expression) : Expression;
         }
 
         private static string StringTokenValues(TokenType[] tokenTypes, bool quotes = true)
@@ -75,13 +77,13 @@ namespace Lunariens_Mental_Math_Trainer
         private static Expression.Range ParseRange(ref List<Token> tokens)
         {
             // NextTokenFiltered(ref tokens, [TokenType.LCurly]);
-            int rangeMin = NextTokenFiltered(ref tokens, [TokenType.Number]).value!.Value;
+            EInteger rangeMin = EInteger.FromInt32(NextTokenFiltered(ref tokens, [TokenType.Number]).value!.Value);
             Token next = NextTokenFiltered(ref tokens, [TokenType.Range, TokenType.RCurly]);
             if (next.tokenType == TokenType.RCurly) //other option is TokenType.Range
             {
                 return new Expression.Range(rangeMin, rangeMin);
             }
-            int rangeMax = NextTokenFiltered(ref tokens, [TokenType.Number]).value!.Value;
+            EInteger rangeMax = EInteger.FromInt32(NextTokenFiltered(ref tokens, [TokenType.Number]).value!.Value);
             NextTokenFiltered(ref tokens, [TokenType.RCurly]);
             return new Expression.Range(rangeMin, rangeMax);
         }
@@ -119,7 +121,9 @@ namespace Lunariens_Mental_Math_Trainer
             {
                 BinaryOp op = (NextToken(ref tokens).tokenType == TokenType.Caret) ? BinaryOp.Power : BinaryOp.Root;
 
-                Expression right = ParseParentheses(ref tokens);
+                Expression right = ParseNumber(ref tokens);
+                if (right is Expression.Number number)
+                    right = new Expression.Number(number.Value, true);
                 int? precision = ParseDotNumber(ref tokens);
 
                 if (op == BinaryOp.Power)
@@ -178,7 +182,7 @@ namespace Lunariens_Mental_Math_Trainer
             }
             return left;
         }
-        private static Expression ParseAddition(ref List<Token> tokens) //TODO: make private after testing, then make a Build method that calls this
+        private static Expression ParseAddition(ref List<Token> tokens)
         {
             // Console.WriteLine("DEBUG ADDITION: " + string.Join(", ", tokens.Select((t) => $"[Type: {t.tokenType}, Val: {t.value}]")));
             Expression left = ParseMultiplication(ref tokens);
@@ -201,7 +205,7 @@ namespace Lunariens_Mental_Math_Trainer
                 NextToken(ref tokens);
                 Expression innerExpression = ParseAddition(ref tokens);
                 NextTokenFiltered(ref tokens, [TokenType.RParen]);
-                return innerExpression;
+                return new Expression.Parentheses(innerExpression);
             }
             else
             {

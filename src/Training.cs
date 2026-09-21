@@ -201,25 +201,6 @@ namespace Lunariens_Mental_Math_Trainer
             }
         }
 
-        private static EInteger RandomEInt(EInteger bottom, EInteger top)
-        {
-            if (bottom > top)
-            {
-                throw new ArgumentException("Bottom must be less than or equal to top.");
-            }
-            Random randomness = new();
-            EInteger rangeSize = top - bottom;
-
-            EContext ctx = new(1000, ERounding.HalfDown, -10000, 10000, false);
-            EFloat rangeLog2 = EFloat.FromEInteger(rangeSize).Log(ctx).Divide(EFloat.FromInt32(2).Log(ctx), ctx);
-            EInteger byteCount = rangeLog2.RoundToPrecision(ctx).ToEInteger();
-            byte[] buf = new byte[byteCount.ToInt32Unchecked() + 5];
-
-            randomness.NextBytes(buf);
-            EInteger result = (EInteger.FromBytes(buf, 0, buf.Length, false).Abs() % rangeSize) + bottom;
-            return result;
-        }
-
         internal static void OpenTrainingScreen(Stopwatch stopWatch, IFormatProvider ifp, DigitCode[] digitCodes, SpeechSynthesizer speechSynth, Modes mode, int? problemCount = null)
         {
             GoodConsoleClear();
@@ -264,7 +245,7 @@ namespace Lunariens_Mental_Math_Trainer
                         xRangeBottom = xRangeTop;
                         xRangeTop = temp;
                     }
-                    x = RandomEInt(xRangeBottom, xRangeTop + 1);
+                    x = ProblemGenerator.RandomEInt(xRangeBottom, xRangeTop + 1);
                 }
                 else if (digitCodes[dcChoice].Operation == 'R')
                 {
@@ -280,7 +261,7 @@ namespace Lunariens_Mental_Math_Trainer
                         xRangeBottom = xRangeTop;
                         xRangeTop = temp;
                     }
-                    x = RandomEInt(xRangeBottom, xRangeTop).Abs();
+                    x = ProblemGenerator.RandomEInt(xRangeBottom, xRangeTop).Abs();
                 }
 
                 if (digitCodes[dcChoice].DigitsY <= 0) // {b..t} number format (b = bottom; t = top)
@@ -293,7 +274,7 @@ namespace Lunariens_Mental_Math_Trainer
                         yRangeBottom = yRangeTop;
                         yRangeTop = temp;
                     }
-                    y = RandomEInt(yRangeBottom, yRangeTop + 1);
+                    y = ProblemGenerator.RandomEInt(yRangeBottom, yRangeTop + 1);
                 }
                 else if (digitCodes[dcChoice].Operation == '^')
                 {
@@ -309,7 +290,7 @@ namespace Lunariens_Mental_Math_Trainer
                         yRangeBottom = yRangeTop;
                         yRangeTop = temp;
                     }
-                    y = RandomEInt(yRangeBottom, yRangeTop).Abs();
+                    y = ProblemGenerator.RandomEInt(yRangeBottom, yRangeTop).Abs();
                 }
 
                 // make a problem string with the random numbers and the operation
