@@ -5,6 +5,7 @@ using static Lunariens_Mental_Math_Trainer.FileHandler;
 using static Lunariens_Mental_Math_Trainer.Training;
 using System.Diagnostics;
 using System.Speech.Synthesis;
+using System.Text.RegularExpressions;
 
 namespace Lunariens_Mental_Math_Trainer
 {
@@ -37,7 +38,7 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     GoodConsoleClear();
 
-                    DigitCode[] usrDCs = [];
+                    string[] usrDCs = [];
                     string? usrSessionDefinition = null;
                     bool gettingInput = true;
 
@@ -48,19 +49,20 @@ namespace Lunariens_Mental_Math_Trainer
                             usrSessionDefinition = GetSessionDefinitionStr();
                             if (usrSessionDefinition != null)
                             {
-                                try
+                                string[] items = usrSessionDefinition.Split([' ', '\t']);
+                                Regex lastNumberRegex = new(@"\d+");
+                                if (lastNumberRegex.IsMatch(items[^1]) && items.Length >= 2)
                                 {
-                                    Parser parser = new(usrSessionDefinition);
-                                    usrDCs = parser.Parse(out SessionConfiguration.problemCount);
-                                    gettingInput = false;
+                                    SessionConfiguration.problemCount = int.Parse(items[^1]);
+                                    usrDCs = items.SkipLast(1).ToArray();
                                 }
-                                catch (FormatException e)
+                                else
                                 {
-                                    GoodConsoleClear();
-                                    Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine(e.Message);
-                                    Console.ForegroundColor = ConsoleColor.White;
+                                    SessionConfiguration.problemCount = null;
+                                    usrDCs = items;
                                 }
+                                
+                                gettingInput = false;
                             }
                             else
                             {
@@ -73,10 +75,11 @@ namespace Lunariens_Mental_Math_Trainer
                             continue;
                         }
 
-                        foreach (DigitCode dc in usrDCs)
-                        {
-                            InitStatistic(dc.ToString(), mode);
-                        }
+                        // TODO: init stats for the new digit codes
+                        // foreach (DigitCode dc in usrDCs)
+                        // {
+                        //     InitStatistic(dc.ToString(), mode);
+                        // }
 
                         OpenTrainingScreen(sw, ifp, usrDCs, synth, mode, SessionConfiguration.problemCount);
                     }

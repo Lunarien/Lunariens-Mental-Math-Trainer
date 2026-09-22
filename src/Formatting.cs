@@ -19,7 +19,7 @@ namespace Lunariens_Mental_Math_Trainer
             Console.WriteLine("Unable to find en-US voice. Using default voice (not recommended at all unless your system language is some form of english).");
             return synth;
         }
-        internal static string AddCommas(string number)
+        private static string AddCommas(string number)
         {
             if (number.Length <= 3)
                 return number;
@@ -103,9 +103,10 @@ namespace Lunariens_Mental_Math_Trainer
             return 20 * (float)Math.Log10(Math.Sqrt(mean) + float.Epsilon);
         }
         
-        internal static string NumToWords(string number, char magnitudeSep)
+        internal static string NumToWords(string number)
         {
-            string[] parts = number.Split(magnitudeSep);
+            number = AddCommas(number);
+            string[] parts = number.Split(',');
             for (int i = 0; i < parts.Length; i++)
             {
                 parts[i] = parts[i].TrimStart('0');
