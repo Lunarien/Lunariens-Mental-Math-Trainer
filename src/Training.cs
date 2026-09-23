@@ -85,17 +85,6 @@ namespace Lunariens_Mental_Math_Trainer
                     throw new FormatException();
             }
         }
-        internal static void PlaySound(string fileName)
-        {
-            using var audioFile = new AudioFileReader("speech.wav");
-            using var outputDevice = new WaveOutEvent();
-            outputDevice.Init(audioFile);
-            outputDevice.Play();
-            while (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                Thread.Sleep(5);
-            }
-        }
         private static void OutputProblem(string problem, SpeechSynthesizer synth, Modes mode)
         {
 
@@ -141,11 +130,12 @@ namespace Lunariens_Mental_Math_Trainer
                     problemWords += $"{TokenToWords(token.ToString())} ";
                 }
 
-                synth.SetOutputToWaveFile("speech.wav");
+                MemoryStream ttsMemoryStream = new MemoryStream();
+                synth.SetOutputToWaveStream(ttsMemoryStream);
                 synth.Speak(problemWords);
                 synth.SetOutputToNull();
-                TrimAudioEnd("speech.wav", "speech-cut.wav", -45);  
-                SoundPlayer player = new("speech-cut.wav");
+                TrimAudioEnd(ref ttsMemoryStream, -45);
+                SoundPlayer player = new(ttsMemoryStream);
                 player.Play();
             }
         }
@@ -162,10 +152,6 @@ namespace Lunariens_Mental_Math_Trainer
                 {
                     List<Tokenizer.Token> tokens = Tokenizer.Tokenize(digitCode);
                     ASTBuilder.Expression expr = ASTBuilder.Build(ref tokens);
-
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"Digit code {digitCode} was parsed successfully");
-                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 catch (DigitCodeException e)
                 {
@@ -199,22 +185,26 @@ namespace Lunariens_Mental_Math_Trainer
                     return;
 
                 int dcChoice = random.Next(0, digitCodes.Length);
+                bool repeatingProblem = false;
 
+                string problem = "";
+                EDecimal result = 0;
                 while (problemCount > 0 || problemCount == null)
                 {
-                    string problem = "";
-                    EDecimal result = 0;
-                    try
+                    if (!repeatingProblem)
                     {
-                        List<Tokenizer.Token> tokens = Tokenizer.Tokenize(digitCodes[dcChoice]);
-                        ASTBuilder.Expression expr = ASTBuilder.Build(ref tokens);
-                        (problem, result) = ProblemGenerator.GenerateProblem(expr);
-                    }
-                    catch (DigitCodeException e)
-                    {
-                        GoodConsoleClear();
-                        Console.WriteLine(e.Message);
-                        return;
+                        try
+                        {
+                            List<Tokenizer.Token> tokens = Tokenizer.Tokenize(digitCodes[dcChoice]);
+                            ASTBuilder.Expression expr = ASTBuilder.Build(ref tokens);
+                            (problem, result) = ProblemGenerator.GenerateProblem(expr);
+                        }
+                        catch (DigitCodeException e)
+                        {
+                            GoodConsoleClear();
+                            Console.WriteLine(e.Message);
+                            return;
+                        }
                     }
 
                     if (!stopWatch.IsRunning)
@@ -244,6 +234,8 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                     else
                     {
+                        GoodConsoleClear();
+                        repeatingProblem = true;
                         continue;
                     }
 

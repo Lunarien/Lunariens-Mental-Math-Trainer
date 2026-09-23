@@ -3,6 +3,7 @@ using static Lunariens_Mental_Math_Trainer.Formatting;
 using Raylib_cs;
 using System.Text.RegularExpressions;
 using NAudio.Utils;
+using System.Reflection;
 
 namespace Lunariens_Mental_Math_Trainer
 {
@@ -35,10 +36,12 @@ namespace Lunariens_Mental_Math_Trainer
                 if (paramInput.ToLower().Trim() == "help")
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    using (StreamReader reader = new("./resources/fa-params-help.txt"))
-                    {
-                        Console.WriteLine(reader.ReadToEnd());
-                    }
+                    var asm = Assembly.GetExecutingAssembly();
+                    using var helpResourceStream = asm.GetManifestResourceStream("Lunarien_s_Mental_Math_Trainer.resources.fa-params-help.txt");
+                    using var r = new StreamReader(helpResourceStream);
+                    string text = r.ReadToEnd();
+                    Console.WriteLine(text);
+                    
                     Console.ForegroundColor = ConsoleColor.White;
                     continue;
                 }
@@ -92,13 +95,30 @@ namespace Lunariens_Mental_Math_Trainer
             Raylib.InitWindow(960, 540, "Flash anzan window");
             Raylib.SetExitKey(KeyboardKey.X);
             Raylib.SetTargetFPS(60);
-            Font font = Raylib.LoadFontEx("./resources/ABACUS.ttf", 200, null, 0);
+
+            var asm = Assembly.GetExecutingAssembly();
+            var helpResourceStream = asm.GetManifestResourceStream("Lunarien_s_Mental_Math_Trainer.resources.ABACUS.ttf")!;
+            var helpMS = new MemoryStream();
+            helpResourceStream.CopyTo(helpMS);
+            Font font = Raylib.LoadFontFromMemory(".ttf", helpMS.ToArray(), 200, null, 0);
+            
             Raylib.GenTextureMipmaps(ref font.Texture);
             Raylib.SetTextureFilter(font.Texture, TextureFilter.Bilinear);
 
             Raylib.InitAudioDevice();
-            Sound fxIntro = Raylib.LoadSound("resources/anzan intro.wav");
-            Sound fxBlip = Raylib.LoadSound("resources/anzan number blip.wav");
+
+            Stream fxIntroStream = asm.GetManifestResourceStream("Lunarien_s_Mental_Math_Trainer.resources.anzan intro.wav")!;
+            var introMS = new MemoryStream();
+            fxIntroStream.CopyTo(introMS);
+            Wave fxIntroWave = Raylib.LoadWaveFromMemory(".wav", introMS.ToArray());
+            Sound fxIntro = Raylib.LoadSoundFromWave(fxIntroWave);
+
+            Stream fxBlipStream = asm.GetManifestResourceStream("Lunarien_s_Mental_Math_Trainer.resources.anzan number blip.wav")!;
+            var blipMS = new MemoryStream();
+            fxBlipStream.CopyTo(blipMS);
+            Wave fxBlipWave = Raylib.LoadWaveFromMemory(".wav", blipMS.ToArray());
+            Sound fxBlip = Raylib.LoadSoundFromWave(fxBlipWave);
+
             int lastBlip = -1;
 
             WindowState state = WindowState.Start;

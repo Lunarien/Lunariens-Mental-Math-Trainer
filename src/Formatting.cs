@@ -67,15 +67,18 @@ namespace Lunariens_Mental_Math_Trainer
         /// <param name="inputFilePath">Path to the input audio file.</param>
         /// <param name="outputFilePath">Path to save the trimmed audio file.</param>
         /// <param name="volumeThresholdDb">Volume threshold in decibels. Values lower represent quieter sounds.</param>
-        internal static void TrimAudioEnd(string inputFilePath, string outputFilePath, float volumeThresholdDb)
+        internal static void TrimAudioEnd(ref MemoryStream inputWavStream, float volumeThresholdDb)
         {
-            using var reader = new AudioFileReader(inputFilePath);
+            byte[] inputWavBytes = inputWavStream.ToArray();
+            using var input = new MemoryStream(inputWavBytes);
+            using var reader = new WaveFileReader(input);
+            var provider = reader.ToSampleProvider();
             float[] buffer = new float[1024];
             TimeSpan lastNonSilentPosition = reader.TotalTime;
 
             while (reader.Position < reader.Length)
             {
-                int samplesRead = reader.Read(buffer, 0, buffer.Length);
+                int samplesRead = provider.Read(buffer, 0, buffer.Length);
                 float volumeDb = GetRmsVolume(buffer, samplesRead);
                 if (volumeDb > volumeThresholdDb)
                 {
@@ -83,13 +86,18 @@ namespace Lunariens_Mental_Math_Trainer
                 }
             }
 
-            using var writer = new WaveFileWriter(outputFilePath, reader.WaveFormat);
-            reader.Position = 0;
-            while (reader.CurrentTime <= lastNonSilentPosition && reader.Position < reader.Length)
+            using var output = new MemoryStream();
+            using (var writer = new WaveFileWriter(output, reader.WaveFormat))
             {
-                int samplesRead = reader.Read(buffer, 0, buffer.Length);
-                writer.WriteSamples(buffer, 0, samplesRead);
+                reader.Position = 0;
+                while (reader.CurrentTime <= lastNonSilentPosition && reader.Position < reader.Length)
+                {
+                    int samplesRead = provider.Read(buffer, 0, buffer.Length);
+                    writer.WriteSamples(buffer, 0, samplesRead);
+                }
             }
+            inputWavBytes = output.ToArray();
+            inputWavStream = new(inputWavBytes);
         }
 
         private static float GetRmsVolume(float[] samples, int sampleCount)
@@ -102,7 +110,7 @@ namespace Lunariens_Mental_Math_Trainer
             double mean = sum / sampleCount;
             return 20 * (float)Math.Log10(Math.Sqrt(mean) + float.Epsilon);
         }
-        
+
         internal static string NumToWords(string number)
         {
             number = AddCommas(number);

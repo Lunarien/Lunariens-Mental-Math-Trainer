@@ -16,6 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="resources\dc-help.txt" />
+    <EmbeddedResource Include="resources\fa-params-help.txt" />
+    <EmbeddedResource Include="resources\ABACUS.ttf" />
+    <EmbeddedResource Include="resources\anzan intro.wav" />
+    <EmbeddedResource Include="resources\anzan number blip.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ConsoleTables" Version="2.5.0" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />

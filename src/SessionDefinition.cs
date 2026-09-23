@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using PeterO.Numbers;
 
@@ -28,10 +29,13 @@ namespace Lunariens_Mental_Math_Trainer
                 else if (usrDigitCodeInput == "help")
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    using (StreamReader reader = new("./resources/dc-help.txt"))
-                    {
-                        Console.WriteLine(reader.ReadToEnd());
-                    }
+
+                    var asm = Assembly.GetExecutingAssembly();
+                    using var helpResourceStream = asm.GetManifestResourceStream("Lunarien_s_Mental_Math_Trainer.resources.dc-help.txt")!;
+                    using var r = new StreamReader(helpResourceStream);
+                    string text = r.ReadToEnd();
+                    Console.WriteLine(text);
+                    
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
