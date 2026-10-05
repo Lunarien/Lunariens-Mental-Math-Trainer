@@ -94,6 +94,8 @@ namespace Lunariens_Mental_Math_Trainer
             Token token = NextTokenFiltered(ref tokens, [TokenType.Number, TokenType.LCurly]);
             if (token.tokenType == TokenType.Number)
             {
+                if (token.value!.Value == 0)
+                    throw new DigitCodeException("Numbers cannot be zero!");
                 return new Expression.Number(token.value!.Value);
             }
             return ParseRange(ref tokens);
