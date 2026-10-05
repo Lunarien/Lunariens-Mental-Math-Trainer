@@ -44,16 +44,15 @@ namespace Lunariens_Mental_Math_Trainer
             tokenValues.Add(TokenType.RCurly, "}");
             tokenValues.Add(TokenType.Range, "..");
 
-            string s = "";
+            List<string> tokens = [];
             foreach (TokenType type in tokenTypes)
             {
                 if (quotes)
-                    s += $"\"{tokenValues[type]}\", ";
+                    tokens.Add($"\"{tokenValues[type]}\"");
                 else
-                    s += $"{tokenValues[type]}, ";
+                    tokens.Add($"{tokenValues[type]}");
             }
-            s = s.Trim([',', ' ']);
-            return s;
+            return string.Join(" or ", tokens.ToArray());
         }
 
         private static Token NextToken(ref List<Token> tokens)
@@ -71,7 +70,7 @@ namespace Lunariens_Mental_Math_Trainer
         {
             Token token = NextToken(ref tokens);
             if (!filter.Contains(token.tokenType))
-                throw new DigitCodeException($"Expected one of: {StringTokenValues(filter)}; found {StringTokenValues([token.tokenType])} instead.");
+                throw new DigitCodeException($"Expected: {StringTokenValues(filter)}, found {StringTokenValues([token.tokenType])} instead.");
             return token;
         }
         private static Expression.Range ParseRange(ref List<Token> tokens)
