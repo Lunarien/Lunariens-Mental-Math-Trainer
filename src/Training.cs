@@ -136,7 +136,7 @@ namespace Lunariens_Mental_Math_Trainer
                 synth.SetOutputToNull();
                 TrimAudioEnd(ref ttsMemoryStream, -45);
                 SoundPlayer player = new(ttsMemoryStream);
-                player.Play();
+                player.PlaySync();
             }
         }
 
