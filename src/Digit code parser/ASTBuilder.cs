@@ -20,7 +20,7 @@ namespace Lunariens_Mental_Math_Trainer
         }
         internal abstract record Expression
         {
-            internal record Number(int Value, bool literal = false) : Expression;
+            internal record Number(EInteger Value, bool Literal = false) : Expression;
             internal record Unary(UnaryOp Op, Expression Operand) : Expression;
             internal record Binary(BinaryOp Op, Expression Left, Expression Right, int? Precision = null) : Expression;
             internal record Range(EInteger Start, EInteger End) : Expression;

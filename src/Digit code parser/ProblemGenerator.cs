@@ -102,7 +102,7 @@ namespace Lunariens_Mental_Math_Trainer
                     }
                 case Expression.Number number:
                     {
-                        if (number.literal)
+                        if (number.Literal)
                         {
                             problem = number.Value.ToString();
                             result = (EDecimal)number.Value;
